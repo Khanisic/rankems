@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Reorder, motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { fetchTopPopularGames, submitRankingsandResults } from '../../lib/actions/rank.actions'
+import { fetchTopPopularGames, submitRankingsandResults, fetchResults } from '../../lib/actions/rank.actions'
 
 interface PopularGame {
     id: string
@@ -19,6 +19,29 @@ interface RankingData {
     rank: number
     increase: boolean
     decrease: boolean
+}
+
+interface GameResult {
+    friend: string
+    points: number
+    increase: boolean
+    decrease: boolean
+}
+
+interface CategoryResult {
+    category: {
+        name: string
+        results: GameResult[]
+    }
+}
+
+interface GameResults {
+    id: string
+    votesCount: number
+    results: CategoryResult[]
+    published: boolean
+    createdAt: string
+    updatedAt: string
 }
 
 function Popular() {
@@ -43,21 +66,57 @@ function Popular() {
         if (popularGames.length > 0 && currentGameIndex < popularGames.length) {
             const game = popularGames[currentGameIndex]
             setCurrentGame(game)
-            // Create ranking data from friends list for the current category
-            if (game.categories.length > 0) {
-                const friends = game.friends.map((friend, index) => ({
+            loadGameResults(game)
+        } else if (currentGameIndex >= 5) {
+            setAllGamesCompleted(true)
+        }
+    }, [popularGames, currentGameIndex])
+
+    // Load game results and order friends by their points
+    const loadGameResults = async (game: PopularGame) => {
+        try {
+            const results: GameResults | null = await fetchResults(game.id)
+            
+            if (results && results.results.length > 0) {
+                // Get the first category's results to order friends by points
+                const firstCategoryResults = results.results[0].category.results
+                
+                // Sort friends by points (highest first) and create ranking data
+                const sortedFriends = firstCategoryResults
+                    .sort((a: GameResult, b: GameResult) => b.points - a.points)
+                    .map((result: GameResult, index: number) => ({
+                        name: result.friend,
+                        rank: index + 1,
+                        increase: result.increase || false,
+                        decrease: result.decrease || false,
+                    }))
+                
+                setData(sortedFriends)
+            } else {
+                // Fallback: if no results, use original friends order
+                const friends = game.friends.map((friend: string, index: number) => ({
                     name: friend,
                     rank: index + 1,
                     increase: false,
                     decrease: false,
                 }))
                 setData(friends)
-                setCurrentCategory(0) // Reset to first category
             }
-        } else if (currentGameIndex >= 5) {
-            setAllGamesCompleted(true)
+            
+            setCurrentCategory(0) // Reset to first category
+        } catch (error) {
+            console.error('Failed to load game results:', error)
+            // Fallback: use original friends order
+            const friends = game.friends.map((friend: string, index: number) => ({
+                name: friend,
+                rank: index + 1,
+                increase: false,
+                decrease: false,
+            }))
+            setData(friends)
+            setCurrentCategory(0)
         }
-    }, [popularGames, currentGameIndex])
+    }
 
     const loadPopularGames = async () => {
         try {

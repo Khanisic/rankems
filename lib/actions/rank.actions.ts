@@ -341,15 +341,79 @@ export async function fetchTopPopularGames(limit: number = 5) {
   try {
     await dbConnect();
     
-    const popularGames = await Games.find({
-      votesCount: { $gt: 0 } // Only games with at least 1 vote
-    })
-    .sort({ votesCount: -1 }) // Sort by votesCount descending
-    .limit(limit)
-    .lean(); // Use lean() for better performance
+    // Get games with results and calculate ranking scores
+    const gamesWithResults = await Games.aggregate([
+      {
+        $match: {
+          votesCount: { $gt: 0 } // Only games with at least 1 vote
+        }
+      },
+      {
+        $lookup: {
+          from: 'results',
+          localField: '_id',
+          foreignField: 'id',
+          as: 'gameResults'
+        }
+      },
+      {
+        $match: {
+          'gameResults.0': { $exists: true } // Only games that have results
+        }
+      },
+      {
+        $addFields: {
+          // Calculate average ranking score across all categories and friends
+          avgRankingScore: {
+            $avg: {
+              $map: {
+                input: { $arrayElemAt: ['$gameResults.results', 0] },
+                as: 'category',
+                in: {
+                  $avg: {
+                    $map: {
+                      input: '$$category.category.results',
+                      as: 'result',
+                      in: '$$result.points'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $sort: { avgRankingScore: -1, votesCount: -1 } // Sort by ranking score, then vote count
+      },
+      {
+        $limit: limit
+      }
+    ]);
     
-    // Serialize the results
-    const serializedGames = popularGames.map(game => ({
+    // If aggregation returns no results, fallback to simple vote count sorting
+    if (gamesWithResults.length === 0) {
+      const fallbackGames = await Games.find({
+        votesCount: { $gt: 0 }
+      })
+      .sort({ votesCount: -1 })
+      .limit(limit)
+      .lean();
+      
+      return fallbackGames.map(game => ({
+        id: game.id,
+        friends: game.friends,
+        categories: game.categories,
+        votingMode: game.votingMode,
+        usersRanked: game.usersRanked || [],
+        votesCount: game.votesCount,
+        createdAt: game.createdAt?.toISOString(),
+        updatedAt: game.updatedAt?.toISOString(),
+      }));
+    }
+    
+    // Serialize the results with ranking-based ordering
+    const serializedGames = gamesWithResults.map(game => ({
       id: game.id,
       friends: game.friends,
       categories: game.categories,
