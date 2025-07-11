@@ -1,26 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100;300;400;900&family=Luckiest+Guy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Love+Ya+Like+A+Sister&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-bg: #09031C;
+  --color-pink: #F986D1;
+  --color-blue: #50A2FF;
+  --color-green: #00C299;
+  --color-yellow: #FFD155;
+  --color-red: #E6323E;
+  --color-purple: #7269E3;
+  --color-box: #1D1C20;
+  --color-border-box: #535353;
+  --font-sans: 'Love Ya Like A Sister', sans-serif;
+  --font-mono: 'Luckiest Guy', sans-serif;
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* .live-box{
+  filter: blur(10px);
+} */
