@@ -215,7 +215,7 @@ function GamePage() {
 
     return (
         <div className="bg-bg min-h-screen py-20 px-8 md:p-16 flex flex-col items-center justify-center">
-            <div className="flex fixed top-0  w-fit z-0 justify-center flex-col items-center">
+            <div className="flex fixed top-0 w-fit z-0 justify-center flex-col items-center">
                 <div
                     onClick={() => router.push("/")}
                     className="bg-yellow my-2 flex items-center gap-4 hover:border-yellow hover:text-yellow hover:border-2 cursor-pointer duration-100 ease-in-out transition-all hover:bg-transparent text-xl text-black py-2 px-8 font-mono rounded-full mt-8"
@@ -227,7 +227,7 @@ function GamePage() {
                 </div>
             </div>
 
-            <div className="flex z-10 flex-col gap-4 w-full max-w-4xl mx-auto">
+            <div className="flex z-10 mt-5 flex-col gap-4 w-full max-w-4xl mx-auto">
                 <div className="flex justify-center items-center w-full gap-10">
                     <p className="text-white font-mono text-2xl">Code: <span className='text-green'>{game.id}</span> </p>
                     <button

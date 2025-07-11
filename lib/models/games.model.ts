@@ -6,6 +6,7 @@ const gameSchema = new mongoose.Schema({
     categories: [{ type: String, required: true }],
     votingMode: { type: String, required: true },
     usersRanked: [{ type: String }],
+    votesCount: { type: Number, default: 0 },
 }, { timestamps: true });
 
 const Games = mongoose.models.Games || mongoose.model('Games', gameSchema);

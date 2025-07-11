@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const resultSchema = new mongoose.Schema({
     id: { type: mongoose.Schema.Types.ObjectId, ref: "Games", required: true },
+    votesCount: { type: Number, default: 0 },
     results: [{
         category: {
             name: { type: String, required: true },

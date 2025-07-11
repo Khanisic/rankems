@@ -10,6 +10,7 @@ interface Game {
   categories: string[]
   votingMode: string
   usersRanked: string[]
+  votesCount: number
   createdAt: string
   updatedAt: string
 }
@@ -30,6 +31,7 @@ interface CategoryResult {
 
 interface Results {
   id: string
+  votesCount: number
   results: CategoryResult[]
   published: boolean
   createdAt: string
@@ -199,7 +201,7 @@ function ResultsPage() {
             variants={variants}        // has both reset & shake
             style={{ display: "inline-block" }}  // allow rotation
             // remove key={category}
-            className='bg-yellow text-black font-mono px-4 py-1 rounded-lg ml-3 text-2xl'
+            className='bg-yellow text-black text-center font-mono px-4 py-1 rounded-lg ml-3 text-2xl'
           >
             {currentCategoryResults.category.name}
           </motion.span>
@@ -231,7 +233,7 @@ function ResultsPage() {
 
               </div>
               <div className="text-white px-6 py-1 rounded-xl font-sans text-2xl w-fit text-center">{ranking.friend}</div>
-              <div className="text-sm text-white font-sans">( {ranking.points} pts )</div>
+              <div className="text-lg text-white font-sans">( {ranking.points} pts )</div>
             </div>
           ))}
         </div>
@@ -268,7 +270,7 @@ function ResultsPage() {
             Voting Mode: <span className='text-green'>{game.votingMode}</span>
           </p>
           <p className="text-white text-lg font-mono mb-6">
-            {game.usersRanked.length} people have voted
+              {results.votesCount} votes submitted 
           </p>
         </div>
       </div>

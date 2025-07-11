@@ -50,11 +50,12 @@ export async function createGame(friends: string[], categories: string[], voting
 
     const newGame = await Games.create({
       id: code,
+      votesCount: 0,
       friends,
       categories,
       votingMode,
     })
-
+    console.log(newGame)
     return newGame.id
 
   } catch (error: unknown) {
@@ -72,6 +73,7 @@ export async function fetchGame(id: string) {
     const gameExists = await Games.findOne({
       id: id
     })
+    console.log(gameExists.id)
 
     if (!gameExists) {
       return null
@@ -84,10 +86,11 @@ export async function fetchGame(id: string) {
       categories: gameExists.categories,
       votingMode: gameExists.votingMode,
       usersRanked: gameExists.usersRanked || [],
+      votesCount: gameExists.votesCount,
       createdAt: gameExists.createdAt?.toISOString(),
       updatedAt: gameExists.updatedAt?.toISOString(),
     }
-
+    console.log(serializedGame)
     return serializedGame
 
   } catch (error: unknown) {
@@ -142,7 +145,7 @@ export async function submitRankingsandResults(rankings: Rankings, id: string, i
 
         // Get previous rankings sorted by points (highest first)
         const previousRankings = [...category.category.results].sort((a, b) => b.points - a.points);
-        
+
         // Calculate new points for each friend
         const updatedResults = category.category.results.map((res: Ranking) => ({
           friend: res.friend,
@@ -166,10 +169,10 @@ export async function submitRankingsandResults(rankings: Rankings, id: string, i
         const rankedResults: Ranking[] = newRankingsSorted.map((item) => {
           const prevPosition = previousPositions.get(item.friend);
           const newPosition = newPositions.get(item.friend);
-          
+
           let increase = false;
           let decrease = false;
-          
+
           if (prevPosition !== undefined && newPosition !== undefined) {
             if (newPosition < prevPosition) {
               increase = true; // Moved up in ranking (lower index = higher rank)
@@ -177,9 +180,9 @@ export async function submitRankingsandResults(rankings: Rankings, id: string, i
               decrease = true; // Moved down in ranking (higher index = lower rank)
             }
           }
-          
+
           console.log(`DEBUG - ${item.friend}: prev=${prevPosition}, new=${newPosition}, increase=${increase}, decrease=${decrease}`);
-          
+
           return {
             friend: item.friend,
             points: item.points,
@@ -196,24 +199,26 @@ export async function submitRankingsandResults(rankings: Rankings, id: string, i
             results: rankedResults
           }
         });
-        
+
         console.log("DEBUG - After push, results array:", JSON.stringify(results, null, 2));
       })
 
       // Update the document directly and save
       existingResults.results = results;
+      existingResults.votesCount = (existingResults.votesCount || 0) + 1;
       existingResults.markModified('results');
       await existingResults.save();
-      
+
       console.log("DEBUG - Saved results:", JSON.stringify(existingResults.results, null, 2));
-      
+
       // Verify what was actually saved
       const verifyResults = await Results.findOne({ id: game._id });
       console.log("DEBUG - Verification - What's in DB:", JSON.stringify(verifyResults?.results, null, 2));
-      
-      // Add user to usersRanked (use identity if provided, otherwise anonymous)
+
+      // Add user to usersRanked and increment votesCount
       const userIdentifier = identity || `Anonymous_${Date.now()}`
       game.usersRanked.push(userIdentifier)
+      game.votesCount = (game.votesCount || 0) + 1;
       await game.save()
 
       return { msg: "Rankings posted" }
@@ -240,12 +245,14 @@ export async function submitRankingsandResults(rankings: Rankings, id: string, i
     const createdResult = await Results.create({
       id: game._id,
       published: false,
+      votesCount: 1,
       results,
     });
-    
-    // Add user to usersRanked (use identity if provided, otherwise anonymous)
+
+    // Add user to usersRanked and increment votesCount
     const userIdentifier = identity || `Anonymous_${Date.now()}`
     game.usersRanked.push(userIdentifier)
+    game.votesCount = (game.votesCount || 0) + 1;
     await game.save()
 
     console.log("Result stored:", createdResult);
@@ -263,6 +270,7 @@ export async function fetchResults(id: string) {
     dbConnect();
 
     const game = await Games.findOne({ id })
+    console.log(game)
     if (!game) {
       return null
     }
@@ -275,6 +283,7 @@ export async function fetchResults(id: string) {
     // Properly serialize the results by sorting them and ensuring they're plain objects
     const serializedResults = {
       id: results.id.toString(),
+      votesCount: game.votesCount,
       results: results.results.map((categoryResult: ResultEntry) => ({
         category: {
           name: categoryResult.category.name,
@@ -307,7 +316,7 @@ export async function testRankingLogic(gameId: string) {
     await dbConnect();
     const game = await Games.findOne({ id: gameId });
     if (!game) return { error: "Game not found" };
-    
+
     const results = await Results.findOne({ id: game._id });
     if (!results) return { error: "Results not found" };
 
@@ -320,10 +329,40 @@ export async function testRankingLogic(gameId: string) {
         console.log(`  ${index + 1}. ${result.friend} (${result.points} points) - increase: ${result.increase}, decrease: ${result.decrease}`);
       });
     });
-    
+
     return { success: true };
   } catch (error) {
     console.error("Test error:", error);
     return { error: "Test failed" };
+  }
+}
+
+export async function fetchTopPopularGames(limit: number = 5) {
+  try {
+    await dbConnect();
+    
+    const popularGames = await Games.find({
+      votesCount: { $gt: 0 } // Only games with at least 1 vote
+    })
+    .sort({ votesCount: -1 }) // Sort by votesCount descending
+    .limit(limit)
+    .lean(); // Use lean() for better performance
+    
+    // Serialize the results
+    const serializedGames = popularGames.map(game => ({
+      id: game.id,
+      friends: game.friends,
+      categories: game.categories,
+      votingMode: game.votingMode,
+      usersRanked: game.usersRanked || [],
+      votesCount: game.votesCount,
+      createdAt: game.createdAt?.toISOString(),
+      updatedAt: game.updatedAt?.toISOString(),
+    }));
+    
+    return serializedGames;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    throw new Error(errorMessage);
   }
 }

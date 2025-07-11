@@ -379,12 +379,12 @@ export default function Home() {
         <p className="font-base text-white text-xl -translate-x-[210px] translate-y-[-160px] rotate-[15deg]">Most Popular right now!</p>
       </div>
 
-      <div className="flex flex-col items-center justify-center h-screen overflow-x-hidden">
+      <div className="min-h-screen overflow-x-hidden">
 
 
 
-        <p className="text-pink font-mono m-0 z-10 text-7xl text-center leading-[80px] pt-8">Rank Em Up</p>
-        <p className="text-white font-base text-2xl text-center z-10">An application where you rank <span className="text-yellow">anything</span> based on <span className="text-purple">anything</span>. </p>
+        <p className="text-pink font-mono m-0 z-10 text-5xl lg:text-7xl text-center leading-[80px] pt-8">Rank Em Up</p>
+        <p className="text-white font-base text-xl lg:text-2xl px-6 text-center z-10">An application where you rank <span className="text-yellow">anything</span> based on <span className="text-purple">anything</span>. </p>
         <div className="flex z-10 gap-4 items-center justify-center pt-5">
           <Link href="/create">
             <button className="text-white relative bg-blue group hover:bg-bg border-b-2 hover:border-blue  hover:text-blue border-white px-6 py-1 rounded-full w-full flex gap-2 items-center cursor-pointer transition-colors">
@@ -409,7 +409,8 @@ export default function Home() {
       </div>
 
       <div className="bg-bg h-full px-20">
-        <p className="text-white font-mono text-4xl mt-10 mb-10 text-center">Current <span className="text-yellow">Live</span> Rankems</p>
+        <p className="text-white font-mono text-4xl mt-10 mb-2 text-center">Current <span className="text-yellow">Live</span> Rankems</p>
+        <p className="text-white font-mono text-2xl text-center mb-2">You can update your ranking anytime.</p>
         <div className="relative  columns-2 md:columns-3 lg:columns-4 xl:columns-4 gap-8 ">
           {data.map((item, index) => (
             <div key={index} className="mt-8 z-20 break-inside-avoid h-fit border border-border-box rounded-3xl p-4" style={{ backgroundColor: colours[index % colours.length] }}>
