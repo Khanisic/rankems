@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import React from 'react'
 import { motion } from 'framer-motion'
@@ -23,7 +24,7 @@ function Triangles() {
         <motion.div
             className="md:flex hidden absolute items-center justify-center top-[60px] left-[200px]"
             animate={{ y: [0, -20, 0], x: [0, 20, 0] }}
-            transition={floatTransition}
+            transition={floatTransition as any}
         >
             <div className="w-0 h-0 translate-y-[-10px] translate-x-[10px] -rotate-35 border-l-[60px] border-l-transparent border-r-[60px] border-r-transparent border-b-[120px] border-b-green"></div>
             <div className="w-0 h-0 translate-y-[60px] translate-x-[10px] -rotate-35 border-l-[60px] border-l-transparent border-r-[60px] border-r-transparent border-t-[120px] border-t-red"></div>
