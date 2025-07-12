@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Reorder, motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { fetchTopPopularGames, submitRankingsandResults, fetchResults } from '../../lib/actions/rank.actions'
+import { hasUserVoted, getUserVote, saveUserVote } from '../../lib/util'
+import toast from 'react-hot-toast'
 
 interface PopularGame {
     id: string
@@ -55,6 +57,8 @@ function Popular() {
     const [currentCategory, setCurrentCategory] = useState(0)
     const [showCursorAnimation, setShowCursorAnimation] = useState(true)
     const [showSubmitCursor, setShowSubmitCursor] = useState(false)
+    const [isEditingVote, setIsEditingVote] = useState(false)
+    const [userVoteData, setUserVoteData] = useState<{ [key: string]: string[] } | null>(null)
 
     // Load popular games on component mount
     useEffect(() => {
@@ -75,6 +79,31 @@ function Popular() {
     // Load game results and order friends by their points
     const loadGameResults = async (game: PopularGame) => {
         try {
+            // Check if user has already voted on this game
+            const hasVoted = hasUserVoted(game.id)
+            const previousVote = getUserVote(game.id)
+            
+            setIsEditingVote(hasVoted)
+            setUserVoteData(previousVote?.rankings || null)
+            
+            // If user has voted, load their previous rankings for the current category
+            if (hasVoted && previousVote?.rankings) {
+                const currentCategoryName = game.categories[currentCategory]
+                const previousRankings = previousVote.rankings[currentCategoryName]
+                
+                if (previousRankings && previousRankings.length > 0) {
+                    const rankingData = previousRankings.map((friend: string, index: number) => ({
+                        name: friend,
+                        rank: index + 1,
+                        increase: false,
+                        decrease: false,
+                    }))
+                    setData(rankingData)
+                    return
+                }
+            }
+            
+            // Load results from database if no previous vote or no rankings for current category
             const results: GameResults | null = await fetchResults(game.id)
             
             if (results && results.results.length > 0) {
@@ -152,17 +181,44 @@ function Popular() {
             // Create rankings object for submission
             const rankings: { [key: string]: string[] } = {}
             
-            // For now, only submit the current category
+            // If user is editing, merge with existing vote data
+            if (isEditingVote && userVoteData) {
+                Object.assign(rankings, userVoteData)
+            }
+            
+            // Update current category ranking
             if (currentGame.categories[currentCategory]) {
                 rankings[currentGame.categories[currentCategory]] = data.map(item => item.name)
             }
 
+            // Save to session storage
+            saveUserVote(currentGame.id, rankings)
+
             await submitRankingsandResults(rankings, currentGame.id)
+            toast.success(isEditingVote ? "Rankings updated successfully" : "Rankings submitted successfully")
             
             // Move to next category or next game
             if (currentCategory < currentGame.categories.length - 1) {
                 // More categories in current game
-                setCurrentCategory(currentCategory + 1)
+                const nextCategory = currentCategory + 1
+                setCurrentCategory(nextCategory)
+                
+                // Load previous vote data for next category if available
+                if (isEditingVote && userVoteData) {
+                    const nextCategoryName = currentGame.categories[nextCategory]
+                    const previousRankings = userVoteData[nextCategoryName]
+                    
+                    if (previousRankings && previousRankings.length > 0) {
+                        const rankingData = previousRankings.map((friend: string, index: number) => ({
+                            name: friend,
+                            rank: index + 1,
+                            increase: false,
+                            decrease: false,
+                        }))
+                        setData(rankingData)
+                    }
+                }
+                
                 setShowSubmitCursor(false)
                 setShowCursorAnimation(true)
             } else {
@@ -185,7 +241,24 @@ function Popular() {
 
         if (currentCategory < currentGame.categories.length - 1) {
             // Move to next category in current game
-            setCurrentCategory(currentCategory + 1)
+            const nextCategory = currentCategory + 1
+            setCurrentCategory(nextCategory)
+            
+            // Load previous vote data for next category if available
+            if (isEditingVote && userVoteData) {
+                const nextCategoryName = currentGame.categories[nextCategory]
+                const previousRankings = userVoteData[nextCategoryName]
+                
+                if (previousRankings && previousRankings.length > 0) {
+                    const rankingData = previousRankings.map((friend: string, index: number) => ({
+                        name: friend,
+                        rank: index + 1,
+                        increase: false,
+                        decrease: false,
+                    }))
+                    setData(rankingData)
+                }
+            }
         } else {
             // Move to next game
             setCurrentGameIndex(currentGameIndex + 1)
@@ -289,7 +362,7 @@ function Popular() {
     const currentCategoryName = currentGame.categories[currentCategory] || "Ranking"
 
     return (
-        <div className="flex relative flex-col items-center justify-center mb-10 pt-10 md:w-[500px] w-[290px] mx-auto">
+        <div className="flex relative flex-col items-center justify-center mb-10 pt-10 md:w-[500px] w-[75%] mx-auto">
             <AnimatedCursor />
             <SubmitCursor />
             <div className="flex gap-3 items-center justify-between w-full">
@@ -358,7 +431,7 @@ function Popular() {
                     className="flex gap-3 items-center bg-green border-b-4 hover:bg-bg cursor-pointer transition-all ease-in-out duration-300 border-white hover:border-green rounded-full px-5 py-1 group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <p className="font-base text-bg group-hover:text-green font-mono md:text-2xl text-xl">
-                        {submitting ? 'Submitting...' : 'Submit'}
+                        {submitting ? (isEditingVote ? 'Updating...' : 'Submitting...') : (isEditingVote ? 'Update' : 'Submit')}
                     </p>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 group-hover:text-white">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />

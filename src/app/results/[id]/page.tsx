@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { fetchGame, fetchResults } from '../../../../lib/actions/rank.actions'
 import { motion, useAnimation } from 'framer-motion'
+import toast from 'react-hot-toast'
 
 interface Game {
   id: string
@@ -100,7 +101,7 @@ function ResultsPage() {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(`${window.location.origin}/results/${game!.id}`).then(() => {
       console.log("Results link copied")
-      // You can add toast notification here
+      toast.success("Game results link copied")
     })
   }
 
@@ -166,8 +167,8 @@ function ResultsPage() {
   const currentCategoryResults = results.results[selectedCategory]
 
   return (
-    <div className="bg-bg min-h-screen flex flex-col items-center justify-center py-20 px-8 md:p-16">
-      <div className="flex fixed top-0  w-fit z-0 justify-center flex-col items-center">
+    <div className="bg-bg min-h-screen flex flex-col items-center justify-center pb-10 px-8 md:p-16">
+      <div className="flex w-fit z-0 justify-center flex-col items-center">
         <div
           onClick={() => router.push("/")}
           className="bg-yellow my-2 flex items-center gap-4 hover:border-yellow hover:text-yellow hover:border-2 cursor-pointer duration-100 ease-in-out transition-all hover:bg-transparent text-xl text-black py-2 px-8 font-mono rounded-full mt-8"
@@ -269,9 +270,20 @@ function ResultsPage() {
           <p className="text-white text-xl font-mono mb-4">
             Voting Mode: <span className='text-green'>{game.votingMode}</span>
           </p>
-          <p className="text-white text-lg font-mono mb-6">
-              {results.votesCount} votes submitted 
+          <p className="text-white text-lg font-mono mb-2">
+            {results.votesCount} votes submitted
           </p>
+        </div>
+        <div className="flex justify-center items-center w-full gap-10">
+          <button
+            className="text-white bg-pink group hover:bg-bg border-b-2 hover:border-pink  hover:text-pink border-white px-5 py-1 rounded-full flex gap-2 items-center cursor-pointer transition-colors"
+            onClick={() => router.push(`/game/${game.id}`)}
+          >
+            <p className='text-white font-mono text-2xl group-hover:text-pink'>Vote Now</p>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-pink transition-all ease-in-out duration-300">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+            </svg>
+          </button>
         </div>
       </div>
     </div >

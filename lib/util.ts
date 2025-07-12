@@ -10,3 +10,61 @@ export function generateCode() {
 
     return code;
 }
+
+// Session storage utilities for managing user votes
+export interface UserVote {
+    gameId: string;
+    rankings: { [key: string]: string[] };
+    votedAt: string;
+    isEditing?: boolean;
+}
+
+export function hasUserVoted(gameId: string): boolean {
+    if (typeof window === 'undefined') return false;
+    
+    const voteKey = `game_vote_${gameId}`;
+    const existingVote = sessionStorage.getItem(voteKey);
+    return existingVote !== null;
+}
+
+export function saveUserVote(gameId: string, rankings: { [key: string]: string[] }): void {
+    if (typeof window === 'undefined') return;
+    
+    const voteKey = `game_vote_${gameId}`;
+    const voteData: UserVote = {
+        gameId,
+        rankings,
+        votedAt: new Date().toISOString(),
+        isEditing: hasUserVoted(gameId)
+    };
+    
+    sessionStorage.setItem(voteKey, JSON.stringify(voteData));
+}
+
+export function getUserVote(gameId: string): UserVote | null {
+    if (typeof window === 'undefined') return null;
+    
+    const voteKey = `game_vote_${gameId}`;
+    const voteData = sessionStorage.getItem(voteKey);
+    
+    if (!voteData) return null;
+    
+    try {
+        return JSON.parse(voteData) as UserVote;
+    } catch (error) {
+        console.error('Error parsing user vote from session storage:', error);
+        return null;
+    }
+}
+
+export function clearUserVote(gameId: string): void {
+    if (typeof window === 'undefined') return;
+    
+    const voteKey = `game_vote_${gameId}`;
+    sessionStorage.removeItem(voteKey);
+}
+
+export function isUserEditingVote(gameId: string): boolean {
+    const userVote = getUserVote(gameId);
+    return userVote?.isEditing || false;
+}

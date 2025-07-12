@@ -11,7 +11,7 @@ import Link from "next/link";
 export default function Home() {
 
   return (
-    <div className="bg-bg h-full pb-30">
+    <div className="bg-bg min-h-screen pb-30">
 
       <Triangles />
 

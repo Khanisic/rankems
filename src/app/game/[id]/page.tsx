@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { fetchGame, submitRankingsandResults } from '../../../../lib/actions/rank.actions'
+import { hasUserVoted, getUserVote, saveUserVote } from '../../../../lib/util'
 import { Reorder, motion, useAnimation } from 'framer-motion'
+import toast from 'react-hot-toast'
 
 interface Game {
     id: string
@@ -39,6 +41,7 @@ function GamePage() {
     const [categories, setCategories] = useState<string[]>([])
     const [rankings, setRankings] = useState<{ [key: string]: string[] }>({})
     const [submitted, setSubmitted] = useState(false)
+    const [isEditingVote, setIsEditingVote] = useState(false)
     const controls = useAnimation()
 
     useEffect(() => {
@@ -59,6 +62,25 @@ function GamePage() {
                         setGame(gameData)
                         setNames([...gameData.friends])
                         setCategories(gameData.categories)
+                        
+                        // Check if user has already voted on this game
+                        const hasVoted = hasUserVoted(params.id as string)
+                        const previousVote = getUserVote(params.id as string)
+                        
+                        setIsEditingVote(hasVoted)
+                        
+                        // If user has voted, load their previous rankings
+                        if (hasVoted && previousVote?.rankings) {
+                            setRankings(previousVote.rankings)
+                            
+                            // Load rankings for the current category (first category)
+                            const firstCategoryName = gameData.categories[0]
+                            const firstCategoryRankings = previousVote.rankings[firstCategoryName]
+                            
+                            if (firstCategoryRankings && firstCategoryRankings.length > 0) {
+                                setNames(firstCategoryRankings)
+                            }
+                        }
                         
                         // Check if restrictive mode and show identity modal
                         if (gameData.votingMode === 'restrictive') {
@@ -93,14 +115,23 @@ function GamePage() {
 
     const nextStep = () => {
         // 1) Save current rankings
-        setRankings(r => ({
-            ...r,
+        const updatedRankings = {
+            ...rankings,
             [categories[category]]: names
-        }))
+        }
+        setRankings(updatedRankings)
 
-        // 2) Advance category & reshuffle names
-        setCategory(c => Math.min(c + 1, categories.length - 1))
-        setNames(game!.friends.sort(() => Math.random() - 0.5))
+        // 2) Advance category
+        const nextCategoryIndex = Math.min(category + 1, categories.length - 1)
+        setCategory(nextCategoryIndex)
+        
+        // 3) Load previous vote data for next category if available
+        if (isEditingVote && updatedRankings[categories[nextCategoryIndex]]) {
+            setNames(updatedRankings[categories[nextCategoryIndex]])
+        } else {
+            // Reshuffle names if no previous data
+            setNames(game!.friends.sort(() => Math.random() - 0.5))
+        }
         // <-- no controls.start here
     }
 
@@ -113,24 +144,29 @@ function GamePage() {
         console.log("Submitting Rankings: ", updatedRankings);
 
         try {
+            // Save to session storage
+            saveUserVote(game!.id, updatedRankings);
+
             const identity = game?.votingMode === 'restrictive' ? selectedIdentity : null
             const res = await submitRankingsandResults(updatedRankings, game!.id, identity)
             console.log(res)
             setSubmitted(true)
             if (res && res.msg) {
                 // You can add toast notification here if you have a toast library
-                console.log("Submitted rankings")
+                console.log(isEditingVote ? "Updated rankings" : "Submitted rankings")
+                toast.success(isEditingVote ? "Rankings updated successfully!" : "Rankings submitted successfully!")
             }
             router.push(`/results/${game!.id}`)
         } catch (error) {
             console.error("Error submitting rankings:", error)
+            toast.error("Failed to submit rankings. Please try again.")
         }
     };
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(`${window.location.origin}/game/${game!.id}`).then(() => {
             console.log("Link copied")
-            // You can add toast notification here
+            toast.success("Game link copied")
         })
     };
 
@@ -214,8 +250,8 @@ function GamePage() {
     }
 
     return (
-        <div className="bg-bg min-h-screen py-20 px-8 md:p-16 flex flex-col items-center justify-center">
-            <div className="flex fixed top-0 w-fit z-0 justify-center flex-col items-center">
+        <div className="bg-bg min-h-screen pb-10 px-8 md:p-16 flex flex-col items-center justify-center">
+            <div className="flex w-fit z-0 justify-center flex-col items-center">
                 <div
                     onClick={() => router.push("/")}
                     className="bg-yellow my-2 flex items-center gap-4 hover:border-yellow hover:text-yellow hover:border-2 cursor-pointer duration-100 ease-in-out transition-all hover:bg-transparent text-xl text-black py-2 px-8 font-mono rounded-full mt-8"
@@ -240,6 +276,15 @@ function GamePage() {
                         </svg>
                     </button>
                 </div>
+
+                {/* Show editing indicator */}
+                {isEditingVote && (
+                    <div className="flex justify-center items-center w-full mt-2">
+                        <p className="text-yellow font-mono text-xl">
+                            ✏️ Editing your previous vote
+                        </p>
+                    </div>
+                )}
 
                 {/* Show selected identity in restrictive mode */}
                 {game.votingMode === 'restrictive' && selectedIdentity && (
@@ -289,9 +334,16 @@ function GamePage() {
                                 setTimeout(() => {
                                     const prevCategory = Math.max(category - 1, 0);
                                     setCategory(prevCategory);
-                                    // Shuffle the names array for the previous category
-                                    const shuffledNames = [...game!.friends].sort(() => Math.random() - 0.5);
-                                    setNames(shuffledNames);
+                                    
+                                    // Load previous vote data for previous category if available
+                                    if (isEditingVote && rankings[categories[prevCategory]]) {
+                                        setNames(rankings[categories[prevCategory]]);
+                                    } else {
+                                        // Shuffle the names array for the previous category
+                                        const shuffledNames = [...game!.friends].sort(() => Math.random() - 0.5);
+                                        setNames(shuffledNames);
+                                    }
+                                    
                                     // Stop shake animation
                                     controls.stop();
                                     controls.set("reset");
@@ -314,7 +366,7 @@ function GamePage() {
                             className="bg-yellow px-5 py-2  cursor-pointer border-b-2 rounded-full hover:bg-bg hover:border-yellow hover:text-yellow border-white transition-colors"
                             onClick={() => submitRankings()}
                         >
-                            <p className="text-darkest font-mono text-xl">Submit</p>
+                            <p className="text-darkest font-mono text-xl">{isEditingVote ? 'Update' : 'Submit'}</p>
                         </button>
                     )}
                 </div>

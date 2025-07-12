@@ -2,12 +2,13 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createGame } from '../../../lib/actions/rank.actions'
+import toast from 'react-hot-toast'
 
 function CreateRankem() {
 
     const router = useRouter()
 
-    const [friends, setFriends] = useState<string[]>(["Add", "Your", "Friends", "Here"]);
+    const [friends, setFriends] = useState<string[]>(["Add", "Your", "Items", "Here"]);
     const [categories, setCategories] = useState<string[]>(["Most likely to..."]);
 
     const [friend, setFriend] = useState("")
@@ -22,20 +23,21 @@ function CreateRankem() {
         try {
             setIsLoading(true)
             setError("")
-            
+
             // Remove the default placeholder items
-            const filteredFriends = friends.filter(friend => 
-                friend !== "Add" && friend !== "Your" && friend !== "Friends" && friend !== "Here"
+            const filteredFriends = friends.filter(friend =>
+                friend !== "Add" && friend !== "Your" && friend !== "Items" && friend !== "Here"
             )
-            
-            const filteredCategories = categories.filter(category => 
+
+            const filteredCategories = categories.filter(category =>
                 category !== "Most likely to..."
             )
-            
+
             const gameId = await createGame(filteredFriends, filteredCategories, votingMode)
-            
+
             if (gameId) {
-                // Navigate to the game page
+                toast.success("Game created successfully")
+                // Navigate to the game page        
                 router.push(`/game/${gameId}`)
             } else {
                 setError("Failed to create game. Please try again.")
@@ -54,9 +56,9 @@ function CreateRankem() {
     }
 
     return (
-        <div className='bg-bg min-h-screen py-20 px-8 md:p-16  relative'>
+        <div className='bg-bg min-h-screen px-8 pb-20 md:p-16  relative'>
 
-            <div className="flex fixed top-0 left-[30%] w-full justify-center flex-col items-center">
+            <div className="flex w-full justify-center flex-col items-center">
                 <div onClick={() => router.push("/")} className="bg-yellow my-2 flex items-center gap-4 hover:border-yellow hover:text-yellow hover:border-2 cursor-pointer duration-100 ease-in-out transition-all  hover:bg-transparent text-2xl text-black py-2 px-8 font-mono rounded-full mt-8">
                     <p>Home</p>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
@@ -73,17 +75,17 @@ function CreateRankem() {
                     <div className=" flex flex-col gap-4 justify-start">
                         <p className="text-white font-mono text-2xl ">Items</p>
                         <div className="flex gap-4 items-center ">
-                            <input 
-                                value={friend} 
-                                onChange={(e) => setFriend(e.currentTarget.value)} 
+                            <input
+                                value={friend}
+                                onChange={(e) => setFriend(e.currentTarget.value)}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && friend.trim() !== "") {
                                         setFriends((prevFriends) => [...prevFriends, friend])
                                         setFriend("")
                                     }
                                 }}
-                                className="outline-none placeholder:text-slate-200 text-white border-lime border-b-2 bg-transparent font-sans text-2xl  py-2 self-start w-fit" 
-                                placeholder="Enter title here" 
+                                className="outline-none placeholder:text-slate-200 text-white border-lime border-b-2 bg-transparent font-sans text-2xl  py-2 self-start w-fit"
+                                placeholder="Enter item title here"
                             />
                             <svg onClick={() => {
                                 if (friend.trim() !== "") {
@@ -129,17 +131,17 @@ function CreateRankem() {
                     <div className=" flex flex-col gap-4 justify-start">
                         <p className="text-white font-mono text-2xl ">Categories</p>
                         <div className="flex  items-center">
-                            <input 
-                                value={category} 
-                                onChange={(e) => setCategory(e.currentTarget.value)} 
+                            <input
+                                value={category}
+                                onChange={(e) => setCategory(e.currentTarget.value)}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && category.trim() !== "") {
                                         setCategories((prevCategories) => [...prevCategories, category])
                                         setCategory("")
                                     }
                                 }}
-                                className="outline-none placeholder:text-slate-200 text-white border-lavender border-b-2 bg-transparent font-sans text-2xl  py-2 self-start w-fit" 
-                                placeholder="Enter category here" 
+                                className="outline-none placeholder:text-slate-200 text-white border-lavender border-b-2 bg-transparent font-sans text-2xl  py-2 self-start w-fit"
+                                placeholder="Enter category here"
                             />
                             <div onClick={() => {
                                 if (category.trim() !== "") {
@@ -179,32 +181,32 @@ function CreateRankem() {
                                                 </svg>
 
 
-                                                         </div>
+                                            </div>
 
-             {/* Modal */}
-             {showModal && (
-                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                     <div className="bg-bg border border-border-box rounded-lg p-6 max-w-md mx-4">
-                         <div className="flex justify-between items-center mb-4">
-                             <h3 className="text-pink text-center font-mono text-2xl">Voting Mode Info</h3>
-                             <button 
-                                 onClick={() => setShowModal(false)}
-                                 className="text-white cursor-pointer hover:text-gray-300 transition-colors"
-                             >
-                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                 </svg>
-                             </button>
-                         </div>
-                         <p className="text-white font-sans text-2xl leading-6">
-                             {modalContent}
-                         </p>
-                     </div>
-                 </div>
-             )}
-         </div>
-     )
- })
+                                            {/* Modal */}
+                                            {showModal && (
+                                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                                    <div className="bg-bg border border-border-box rounded-lg p-6 max-w-md mx-4">
+                                                        <div className="flex justify-between items-center mb-4">
+                                                            <h3 className="text-pink text-center font-mono text-2xl">Voting Mode Info</h3>
+                                                            <button
+                                                                onClick={() => setShowModal(false)}
+                                                                className="text-white cursor-pointer hover:text-gray-300 transition-colors"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-white font-sans text-2xl leading-6">
+                                                            {modalContent}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                })
                             }
                         </div>
                     </div>
@@ -222,15 +224,15 @@ function CreateRankem() {
                                 onChange={(e) => setVotingMode(e.target.value)}
                                 className="w-5 h-5 text-green bg-transparent border-2 border-green rounded focus:ring-green"
                             />
-                                                         <div className="flex items-center gap-2">
-                                 <p className="text-white font-sans text-2xl">Restrictive</p>
-                                 <span 
-                                     onClick={() => openModal("Check this if you are ranking your friends and only want them to rank. Each friend would be prompted their name and they must choose from the friends that you have entered.")}
-                                     className='text-blue mb-1 font-mono text-2xl cursor-pointer hover:text-blue-300 transition-colors'
-                                 >
-                                     ?
-                                 </span>
-                             </div>
+                            <div className="flex items-center gap-2">
+                                <p className="text-white font-sans text-2xl">Restrictive</p>
+                                <span
+                                    onClick={() => openModal("Check this if you are ranking your friends and only want them to rank. Each friend would be prompted their name and they must choose from the friends that you have entered.")}
+                                    className='text-blue mb-1 font-mono text-2xl cursor-pointer hover:text-blue-300 transition-colors'
+                                >
+                                    ?
+                                </span>
+                            </div>
                         </label>
 
                         <label className="flex items-center gap-3 cursor-pointer">
@@ -242,9 +244,9 @@ function CreateRankem() {
                                 onChange={(e) => setVotingMode(e.target.value)}
                                 className="w-5 h-5 text-green bg-transparent border-2 border-green rounded focus:ring-green"
                             />
-                                                       <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
                                 <p className="text-white font-sans text-2xl">Public</p>
-                                <span 
+                                <span
                                     onClick={() => openModal("Anyone can vote here. This is the default mode and the title can be searched by anyone.")}
                                     className='text-blue mb-1 font-mono text-2xl cursor-pointer hover:text-blue-300 transition-colors'
                                 >
@@ -262,15 +264,15 @@ function CreateRankem() {
                                 onChange={(e) => setVotingMode(e.target.value)}
                                 className="w-5 h-5 text-pink bg-transparent border-2 border-pink rounded focus:ring-pink"
                             />
-                                                         <div className="flex items-center gap-2">
-                                 <p className="text-white font-sans text-2xl">Private</p>
-                                 <span 
-                                     onClick={() => openModal("Can only vote if link is shared.")}
-                                     className='text-blue mb-1 font-mono text-2xl cursor-pointer hover:text-blue-300 transition-colors'
-                                 >
-                                     ?
-                                 </span>
-                             </div>
+                            <div className="flex items-center gap-2">
+                                <p className="text-white font-sans text-2xl">Private</p>
+                                <span
+                                    onClick={() => openModal("Can only vote if link is shared.")}
+                                    className='text-blue mb-1 font-mono text-2xl cursor-pointer hover:text-blue-300 transition-colors'
+                                >
+                                    ?
+                                </span>
+                            </div>
                         </label>
                     </div>
                 </div>
@@ -289,13 +291,12 @@ function CreateRankem() {
                     friends.length > 4 && categories.length > 0 &&
 
                     <div className="flex w-full justify-center flex-col items-center">
-                        <div 
-                            onClick={() => create()} 
-                            className={`my-2 cursor-pointer duration-100 ease-in-out transition-all text-2xl py-2 px-8 font-mono rounded-full mt-8 ${
-                                isLoading 
-                                    ? 'bg-gray-500 text-gray-300 cursor-not-allowed' 
+                        <div
+                            onClick={() => create()}
+                            className={`my-2 cursor-pointer duration-100 ease-in-out transition-all text-2xl py-2 px-8 font-mono rounded-full mt-8 ${isLoading
+                                    ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
                                     : 'bg-pink hover:border-pink hover:text-pink hover:border-2 hover:bg-transparent text-white'
-                            }`}
+                                }`}
                         >
                             {isLoading ? 'Creating...' : 'Create'}
                         </div>

@@ -430,3 +430,60 @@ export async function fetchTopPopularGames(limit: number = 5) {
     throw new Error(errorMessage);
   }
 }
+
+export async function searchPublicGames(searchTerm: string) {
+  try {
+    await dbConnect();
+    
+    // Search for games by category name that are public (have votes and results)
+    const matchingGames = await Games.aggregate([
+      {
+        $match: {
+          votesCount: { $gt: 0 }, // Only games with at least 1 vote
+          categories: { 
+            $elemMatch: { 
+              $regex: searchTerm, 
+              $options: 'i' // Case-insensitive search
+            } 
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'results',
+          localField: '_id',
+          foreignField: 'id',
+          as: 'gameResults'
+        }
+      },
+      {
+        $match: {
+          'gameResults.0': { $exists: true } // Only games that have results
+        }
+      },
+      {
+        $sort: { votesCount: -1, updatedAt: -1 } // Sort by vote count, then by most recent
+      },
+      {
+        $limit: 50 // Limit to 50 results to avoid overwhelming the UI
+      }
+    ]);
+    
+    // Serialize the results
+    const serializedGames = matchingGames.map(game => ({
+      id: game.id,
+      friends: game.friends,
+      categories: game.categories,
+      votingMode: game.votingMode,
+      usersRanked: game.usersRanked || [],
+      votesCount: game.votesCount,
+      createdAt: game.createdAt?.toISOString(),
+      updatedAt: game.updatedAt?.toISOString(),
+    }));
+    
+    return serializedGames;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    throw new Error(errorMessage);
+  }
+}
