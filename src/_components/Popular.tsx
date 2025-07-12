@@ -256,7 +256,7 @@ function Popular() {
 
     if (loading) {
         return (
-            <div className="flex relative flex-col items-center justify-center pt-10 w-[500px] mx-auto">
+            <div className="flex relative flex-col items-center justify-center pt-10 md:w-[500px] w-[320px] mx-auto">
                 <div className="text-white text-2xl font-mono">Loading popular games...</div>
             </div>
         )
@@ -264,7 +264,7 @@ function Popular() {
 
     if (allGamesCompleted || popularGames.length === 0) {
         return (
-            <div className="flex relative flex-col items-center justify-center pt-10 w-[500px] mx-auto">
+            <div className="flex relative flex-col items-center justify-center pt-10 md:w-[500px] w-[320px] mx-auto">
                 <div className="text-center">
                     <h2 className="font-mono text-white text-4xl mb-6">🎉 All Done!</h2>
                     <p className="font-base text-white text-xl mb-4">
@@ -280,7 +280,7 @@ function Popular() {
 
     if (!currentGame) {
         return (
-            <div className="flex relative flex-col items-center justify-center pt-10 w-[500px] mx-auto">
+            <div className="flex relative flex-col items-center justify-center pt-10 md:w-[500px] w-[320px] mx-auto">
                 <div className="text-white text-2xl font-mono">No games available</div>
             </div>
         )
@@ -289,18 +289,18 @@ function Popular() {
     const currentCategoryName = currentGame.categories[currentCategory] || "Ranking"
 
     return (
-        <div className="flex relative flex-col items-center justify-center mb-10 pt-10 w-[500px] mx-auto">
+        <div className="flex relative flex-col items-center justify-center mb-10 pt-10 md:w-[500px] w-[290px] mx-auto">
             <AnimatedCursor />
             <SubmitCursor />
             <div className="flex gap-3 items-center justify-between w-full">
                 <div className="flex flex-col">
-                    <p className="font-mono text-white text-3xl">{currentCategoryName}</p>
+                    <p className="font-mono text-white md:text-3xl text-2xl">{currentCategoryName}</p>
                     <p className="font-base text-pink text-lg">
                         Game {currentGameIndex + 1} of {Math.min(popularGames.length, 5)}
                     </p>
                 </div>
                 <div className="flex gap-3 items-center cursor-pointer group" onClick={handleNext}>
-                    <p className="font-base text-green text-2xl">Next</p>
+                    <p className="font-base text-green md:text-2xl text-xl">Next</p>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 transition-all ease-in-out duration-300">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
                     </svg>
@@ -315,10 +315,10 @@ function Popular() {
                                 key={item.name}
                                 value={item}
                                 whileDrag={{ scale: 1.05, zIndex: 10 }}
-                                className="flex gap-3 items-center cursor-grab active:cursor-grabbing group bg-box border-1 border-border-box rounded-full px-5 py-2 w-full justify-between"
+                                className="flex gap-3 items-center cursor-grab active:cursor-grabbing group bg-box border-1 border-border-box rounded-full px-3 py-1 w-full justify-between"
                             >
                                 <div className="flex gap-3 items-center">
-                                    <p className="font-base text-white text-2xl">{item.rank}.</p>
+                                    <p className="font-base text-white md:text-2xl text-lg">{item.rank}.</p>
                                     {item.increase &&
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -337,7 +337,7 @@ function Popular() {
                                         </svg>
                                     }
                                 </div>
-                                <p className="font-base text-white text-2xl w-full text-center pr-12">{item.name}</p>
+                                <p className="font-base text-white md:text-2xl text-lg w-full text-center pr-4 md:pr-12">{item.name}</p>
                             </Reorder.Item>
                         )
                     })}
@@ -349,7 +349,7 @@ function Popular() {
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 stroke-purple">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                     </svg>
-                    <p className="font-base text-white text-xl">{currentGame.votesCount}</p>
+                    <p className="font-base text-white md:text-xl text-lg">{currentGame.votesCount}</p>
                 </div>
 
                 <button 
@@ -357,7 +357,7 @@ function Popular() {
                     disabled={submitting}
                     className="flex gap-3 items-center bg-green border-b-4 hover:bg-bg cursor-pointer transition-all ease-in-out duration-300 border-white hover:border-green rounded-full px-5 py-1 group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <p className="font-base text-bg group-hover:text-green font-mono text-2xl">
+                    <p className="font-base text-bg group-hover:text-green font-mono md:text-2xl text-xl">
                         {submitting ? 'Submitting...' : 'Submit'}
                     </p>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6 group-hover:text-white">
