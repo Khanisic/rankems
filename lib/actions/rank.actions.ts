@@ -100,7 +100,13 @@ export async function fetchGame(id: string) {
 }
 
 
-export async function submitRankingsandResults(rankings: Rankings, id: string, identity?: string | null) {
+export async function submitRankingsandResults(
+  rankings: Rankings, 
+  id: string, 
+  identity?: string | null, 
+  isEditing?: boolean, 
+  previousRankings?: Rankings
+) {
   try {
     await dbConnect();
 
@@ -112,8 +118,8 @@ export async function submitRankingsandResults(rankings: Rankings, id: string, i
       id
     })
 
-    // If identity is provided, check if this person has already voted
-    if (identity && game?.usersRanked.includes(identity)) {
+    // If identity is provided and this is NOT an edit, check if this person has already voted
+    if (identity && !isEditing && game?.usersRanked.includes(identity)) {
       throw new Error("You have already voted in this game!");
     }
 
@@ -140,28 +146,60 @@ export async function submitRankingsandResults(rankings: Rankings, id: string, i
       }
 
       existingResults.results.forEach((category: ExistingResult) => {
-
-        const newRankings = rankings[category.category.name]
+        const categoryName = category.category.name;
+        const newRankings = rankings[categoryName];
 
         // Get previous rankings sorted by points (highest first)
-        const previousRankings = [...category.category.results].sort((a, b) => b.points - a.points);
+        const previousRankingsSorted = [...category.category.results].sort((a, b) => b.points - a.points);
 
-        // Calculate new points for each friend
-        const updatedResults = category.category.results.map((res: Ranking) => ({
-          friend: res.friend,
-          points: res.points + numberOfNames - newRankings.indexOf(res.friend),
-          increase: false,
-          decrease: false
-        }));
+        let updatedResults;
+
+        if (isEditing && previousRankings && previousRankings[categoryName]) {
+          // EDITING: First subtract previous rankings, then add new ones
+          const oldRankings = previousRankings[categoryName];
+          
+          // Subtract previous rankings
+          updatedResults = category.category.results.map((res: Ranking) => {
+            const oldIndex = oldRankings.indexOf(res.friend);
+            const oldPoints = oldIndex !== -1 ? numberOfNames - oldIndex : 0;
+            return {
+              friend: res.friend,
+              points: res.points - oldPoints, // Subtract old points
+              increase: false,
+              decrease: false
+            };
+          });
+
+          // Add new rankings
+          updatedResults = updatedResults.map((res: Ranking) => {
+            const newIndex = newRankings.indexOf(res.friend);
+            const newPoints = newIndex !== -1 ? numberOfNames - newIndex : 0;
+            return {
+              friend: res.friend,
+              points: res.points + newPoints, // Add new points
+              increase: false,
+              decrease: false
+            };
+          });
+        } else {
+          // NEW VOTE: Just add the new rankings
+          updatedResults = category.category.results.map((res: Ranking) => ({
+            friend: res.friend,
+            points: res.points + numberOfNames - newRankings.indexOf(res.friend),
+            increase: false,
+            decrease: false
+          }));
+        }
 
         // Sort by new points to get new rankings
         const newRankingsSorted = [...updatedResults].sort((a, b) => b.points - a.points);
 
         // Create maps for quick lookup of previous and new positions
-        const previousPositions = new Map(previousRankings.map((item, index) => [item.friend, index]));
+        const previousPositions = new Map(previousRankingsSorted.map((item, index) => [item.friend, index]));
         const newPositions = new Map(newRankingsSorted.map((item, index) => [item.friend, index]));
 
-        console.log("DEBUG - Category:", category.category.name);
+        console.log("DEBUG - Category:", categoryName);
+        console.log("DEBUG - Is editing:", isEditing);
         console.log("DEBUG - Previous positions:", Array.from(previousPositions.entries()));
         console.log("DEBUG - New positions:", Array.from(newPositions.entries()));
 
@@ -195,35 +233,37 @@ export async function submitRankingsandResults(rankings: Rankings, id: string, i
 
         results.push({
           category: {
-            name: category.category.name,
+            name: categoryName,
             results: rankedResults
           }
         });
-
-        console.log("DEBUG - After push, results array:", JSON.stringify(results, null, 2));
       })
 
       // Update the document directly and save
       existingResults.results = results;
-      existingResults.votesCount = (existingResults.votesCount || 0) + 1;
+      
+      // Only increment vote count if this is NOT an edit
+      if (!isEditing) {
+        existingResults.votesCount = (existingResults.votesCount || 0) + 1;
+      }
+      
       existingResults.markModified('results');
       await existingResults.save();
 
       console.log("DEBUG - Saved results:", JSON.stringify(existingResults.results, null, 2));
 
-      // Verify what was actually saved
-      const verifyResults = await Results.findOne({ id: game._id });
-      console.log("DEBUG - Verification - What's in DB:", JSON.stringify(verifyResults?.results, null, 2));
+      // Only add user to usersRanked and increment votesCount if this is NOT an edit
+      if (!isEditing) {
+        const userIdentifier = identity || `Anonymous_${Date.now()}`
+        game.usersRanked.push(userIdentifier)
+        game.votesCount = (game.votesCount || 0) + 1;
+        await game.save()
+      }
 
-      // Add user to usersRanked and increment votesCount
-      const userIdentifier = identity || `Anonymous_${Date.now()}`
-      game.usersRanked.push(userIdentifier)
-      game.votesCount = (game.votesCount || 0) + 1;
-      await game.save()
-
-      return { msg: "Rankings posted" }
+      return { msg: isEditing ? "Rankings updated" : "Rankings posted" }
     }
 
+    // Handle case where no existing results (first vote)
     categories.forEach(category => {
       const rankedResults: Ranking[] = rankings[category].map((name, index) => ({
         friend: name,

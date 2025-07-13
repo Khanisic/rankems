@@ -69,7 +69,7 @@ function GamePage() {
                         
                         setIsEditingVote(hasVoted)
                         
-                        // If user has voted, load their previous rankings
+                        // If user has voted, load their previous rankings and identity
                         if (hasVoted && previousVote?.rankings) {
                             setRankings(previousVote.rankings)
                             
@@ -80,11 +80,19 @@ function GamePage() {
                             if (firstCategoryRankings && firstCategoryRankings.length > 0) {
                                 setNames(firstCategoryRankings)
                             }
+                            
+                            // If restrictive mode and user has previously voted, set their identity
+                            if (gameData.votingMode === 'restrictive' && previousVote.identity) {
+                                setSelectedIdentity(previousVote.identity)
+                            }
                         }
                         
                         // Check if restrictive mode and show identity modal
                         if (gameData.votingMode === 'restrictive') {
-                            setShowIdentityModal(true)
+                            // Only show modal if user hasn't voted before
+                            if (!hasVoted) {
+                                setShowIdentityModal(true)
+                            }
                         }
                     } else {
                         setError("Game not found")
@@ -102,9 +110,15 @@ function GamePage() {
     }, [params.id])
 
     const handleIdentitySelect = (identity: string) => {
+        // If user has already voted, they should not be able to select any identity
+        if (isEditingVote) {
+            setIdentityError("You have already voted in this game! You cannot select a new identity.")
+            return
+        }
+        
         // Check if this person has already voted
         if (game?.usersRanked.includes(identity)) {
-            setIdentityError("You have already voted in this game!")
+            setIdentityError("This person has already voted in this game!")
             return
         }
         
@@ -144,11 +158,21 @@ function GamePage() {
         console.log("Submitting Rankings: ", updatedRankings);
 
         try {
+            // Get previous rankings if editing
+            const previousVote = isEditingVote ? getUserVote(game!.id) : null;
+            const previousRankings = previousVote?.rankings || undefined;
+
             // Save to session storage
-            saveUserVote(game!.id, updatedRankings);
+            saveUserVote(game!.id, updatedRankings, selectedIdentity || undefined);
 
             const identity = game?.votingMode === 'restrictive' ? selectedIdentity : null
-            const res = await submitRankingsandResults(updatedRankings, game!.id, identity)
+            const res = await submitRankingsandResults(
+                updatedRankings, 
+                game!.id, 
+                identity,
+                isEditingVote,
+                previousRankings
+            )
             console.log(res)
             setSubmitted(true)
             if (res && res.msg) {
@@ -212,20 +236,25 @@ function GamePage() {
                         )}
                         
                         <div className="space-y-3">
-                            {game.friends.map((friend) => (
-                                <button
-                                    key={friend}
-                                    onClick={() => handleIdentitySelect(friend)}
-                                    className={`w-full p-3 cursor-pointer rounded-lg font-sans text-2xl transition-colors ${
-                                        game.usersRanked.includes(friend)
-                                            ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                            : 'bg-yellow text-black hover:bg-box hover:border-yellow hover:border-2 hover:text-yellow'
-                                    }`}
-                                    disabled={game.usersRanked.includes(friend)}
-                                >
-                                    {friend} {game.usersRanked.includes(friend) && '(Already voted)'}
-                                </button>
-                            ))}
+                            {game.friends.map((friend) => {
+                                const hasVoted = game.usersRanked.includes(friend);
+                                const isDisabled = hasVoted;
+                                
+                                return (
+                                    <button
+                                        key={friend}
+                                        onClick={() => handleIdentitySelect(friend)}
+                                        className={`w-full p-3 cursor-pointer rounded-lg font-sans text-2xl transition-colors ${
+                                            isDisabled
+                                                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                                : 'bg-yellow text-black hover:bg-box hover:border-yellow hover:border-2 hover:text-yellow'
+                                        }`}
+                                        disabled={isDisabled}
+                                    >
+                                        {friend} {hasVoted && '(Already voted)'}
+                                    </button>
+                                );
+                            })}
                         </div>
                         
                         <button
@@ -242,6 +271,28 @@ function GamePage() {
 
     // Don't show ranking interface if restrictive mode and no identity selected
     if (game.votingMode === 'restrictive' && !selectedIdentity) {
+        // If user has already voted but we don't have their identity, show error
+        if (isEditingVote) {
+            return (
+                <div className="bg-bg min-h-screen flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="text-red-500 text-2xl font-mono mb-4">
+                            You have already voted in this game, but we couldn&apos;t retrieve your original identity.
+                        </div>
+                        <div className="text-white text-lg font-mono mb-6">
+                            This might happen if you cleared your browser data or are using a different device.
+                        </div>
+                        <button
+                            onClick={() => router.push("/")}
+                            className="bg-yellow text-black px-6 py-2 rounded-full font-mono hover:bg-yellow-300 transition-colors"
+                        >
+                            Go Home
+                        </button>
+                    </div>
+                </div>
+            )
+        }
+        
         return (
             <div className="bg-bg min-h-screen flex items-center justify-center">
                 <div className="text-white text-2xl font-mono">Please select your identity to continue...</div>

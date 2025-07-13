@@ -191,10 +191,19 @@ function Popular() {
                 rankings[currentGame.categories[currentCategory]] = data.map(item => item.name)
             }
 
+            // Get previous rankings if editing
+            const previousRankings = isEditingVote ? userVoteData : undefined;
+
             // Save to session storage
             saveUserVote(currentGame.id, rankings)
 
-            await submitRankingsandResults(rankings, currentGame.id)
+            await submitRankingsandResults(
+                rankings, 
+                currentGame.id, 
+                null, // identity not used in popular games
+                isEditingVote,
+                previousRankings
+            )
             toast.success(isEditingVote ? "Rankings updated successfully" : "Rankings submitted successfully")
             
             // Move to next category or next game

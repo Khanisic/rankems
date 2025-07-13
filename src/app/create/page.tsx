@@ -18,22 +18,15 @@ function CreateRankem() {
     const [modalContent, setModalContent] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
+    const [friendsInputFocused, setFriendsInputFocused] = useState(false)
+    const [categoriesInputFocused, setCategoriesInputFocused] = useState(false)
 
     const create = async () => {
         try {
             setIsLoading(true)
             setError("")
 
-            // Remove the default placeholder items
-            const filteredFriends = friends.filter(friend =>
-                friend !== "Add" && friend !== "Your" && friend !== "Items" && friend !== "Here"
-            )
-
-            const filteredCategories = categories.filter(category =>
-                category !== "Most likely to..."
-            )
-
-            const gameId = await createGame(filteredFriends, filteredCategories, votingMode)
+            const gameId = await createGame(friends, categories, votingMode)
 
             if (gameId) {
                 toast.success("Game created successfully")
@@ -78,6 +71,12 @@ function CreateRankem() {
                             <input
                                 value={friend}
                                 onChange={(e) => setFriend(e.currentTarget.value)}
+                                onFocus={() => {
+                                    if (!friendsInputFocused) {
+                                        setFriends([])
+                                        setFriendsInputFocused(true)
+                                    }
+                                }}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && friend.trim() !== "") {
                                         setFriends((prevFriends) => [...prevFriends, friend])
@@ -134,6 +133,12 @@ function CreateRankem() {
                             <input
                                 value={category}
                                 onChange={(e) => setCategory(e.currentTarget.value)}
+                                onFocus={() => {
+                                    if (!categoriesInputFocused) {
+                                        setCategories([])
+                                        setCategoriesInputFocused(true)
+                                    }
+                                }}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && category.trim() !== "") {
                                         setCategories((prevCategories) => [...prevCategories, category])

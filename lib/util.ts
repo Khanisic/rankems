@@ -17,6 +17,7 @@ export interface UserVote {
     rankings: { [key: string]: string[] };
     votedAt: string;
     isEditing?: boolean;
+    identity?: string; // Add identity field for restrictive mode
 }
 
 export function hasUserVoted(gameId: string): boolean {
@@ -27,15 +28,19 @@ export function hasUserVoted(gameId: string): boolean {
     return existingVote !== null;
 }
 
-export function saveUserVote(gameId: string, rankings: { [key: string]: string[] }): void {
+export function saveUserVote(gameId: string, rankings: { [key: string]: string[] }, identity?: string): void {
     if (typeof window === 'undefined') return;
     
     const voteKey = `game_vote_${gameId}`;
+    const hadPreviousVote = hasUserVoted(gameId);
+    const existingVote = getUserVote(gameId);
+    
     const voteData: UserVote = {
         gameId,
         rankings,
-        votedAt: new Date().toISOString(),
-        isEditing: hasUserVoted(gameId)
+        votedAt: hadPreviousVote ? existingVote?.votedAt || new Date().toISOString() : new Date().toISOString(),
+        isEditing: hadPreviousVote,
+        identity: identity || existingVote?.identity // Preserve original identity if editing
     };
     
     sessionStorage.setItem(voteKey, JSON.stringify(voteData));
