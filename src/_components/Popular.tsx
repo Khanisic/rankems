@@ -202,7 +202,7 @@ function Popular() {
                 currentGame.id, 
                 null, // identity not used in popular games
                 isEditingVote,
-                previousRankings
+                previousRankings || undefined
             )
             toast.success(isEditingVote ? "Rankings updated successfully" : "Rankings submitted successfully")
             
