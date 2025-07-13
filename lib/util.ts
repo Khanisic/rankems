@@ -24,7 +24,7 @@ export function hasUserVoted(gameId: string): boolean {
     if (typeof window === 'undefined') return false;
     
     const voteKey = `game_vote_${gameId}`;
-    const existingVote = sessionStorage.getItem(voteKey);
+    const existingVote = localStorage.getItem(voteKey);
     return existingVote !== null;
 }
 
@@ -43,7 +43,7 @@ export function saveUserVote(gameId: string, rankings: { [key: string]: string[]
         identity: identity || existingVote?.identity // Preserve original identity if editing
     };
     
-    sessionStorage.setItem(voteKey, JSON.stringify(voteData));
+    localStorage.setItem(voteKey, JSON.stringify(voteData));
     
     // Add game to user's games array
     addGameToUserGames(gameId);
@@ -53,7 +53,7 @@ export function getUserVote(gameId: string): UserVote | null {
     if (typeof window === 'undefined') return null;
     
     const voteKey = `game_vote_${gameId}`;
-    const voteData = sessionStorage.getItem(voteKey);
+    const voteData = localStorage.getItem(voteKey);
     
     if (!voteData) return null;
     
@@ -69,7 +69,7 @@ export function clearUserVote(gameId: string): void {
     if (typeof window === 'undefined') return;
     
     const voteKey = `game_vote_${gameId}`;
-    sessionStorage.removeItem(voteKey);
+    localStorage.removeItem(voteKey);
 }
 
 export function isUserEditingVote(gameId: string): boolean {
@@ -81,7 +81,7 @@ export function isUserEditingVote(gameId: string): boolean {
 export function getUserGames(): string[] {
     if (typeof window === 'undefined') return [];
     
-    const gamesData = sessionStorage.getItem('games');
+    const gamesData = localStorage.getItem('games');
     if (!gamesData) return [];
     
     try {
@@ -98,7 +98,7 @@ export function addGameToUserGames(gameId: string): void {
     const games = getUserGames();
     if (!games.includes(gameId)) {
         games.push(gameId);
-        sessionStorage.setItem('games', JSON.stringify(games));
+        localStorage.setItem('games', JSON.stringify(games));
     }
 }
 
@@ -107,11 +107,11 @@ export function removeGameFromUserGames(gameId: string): void {
     
     const games = getUserGames();
     const updatedGames = games.filter(id => id !== gameId);
-    sessionStorage.setItem('games', JSON.stringify(updatedGames));
+    localStorage.setItem('games', JSON.stringify(updatedGames));
 }
 
 export function clearUserGames(): void {
     if (typeof window === 'undefined') return;
     
-    sessionStorage.removeItem('games');
+    localStorage.removeItem('games');
 }

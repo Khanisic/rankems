@@ -87,7 +87,7 @@ function Mine() {
 
                         // Get user's vote timestamp from session storage
                         const userVoteKey = `game_vote_${gameId}`
-                        const userVoteData = sessionStorage.getItem(userVoteKey)
+                        const userVoteData = localStorage.getItem(userVoteKey)
                         let votedAt: string | undefined
 
                         if (userVoteData) {
