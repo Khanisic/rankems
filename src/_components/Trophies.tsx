@@ -23,7 +23,7 @@ function Trophies() {
 
     return (
         <motion.div
-            className="md:flex hidden absolute items-center justify-center top-[250px] right-[200px]"
+            className="md:flex hidden z-0 absolute items-center justify-center top-[250px] right-[200px]"
             animate={{ y: [0, 58, 0], x: [0, 20, 0] }}
             transition={{ ...floatTransition, y: { ...floatTransition.y, duration: 4 } } as any}
         >

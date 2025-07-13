@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createGame } from '../../../lib/actions/rank.actions'
+import { addGameToUserGames } from '../../../lib/util'
 import toast from 'react-hot-toast'
 
 function CreateRankem() {
@@ -29,6 +30,8 @@ function CreateRankem() {
             const gameId = await createGame(friends, categories, votingMode)
 
             if (gameId) {
+                // Add game to user's games array in session storage
+                addGameToUserGames(gameId)
                 toast.success("Game created successfully")
                 // Navigate to the game page        
                 router.push(`/game/${gameId}`)
@@ -52,7 +55,7 @@ function CreateRankem() {
         <div className='bg-bg min-h-screen px-8 pb-20 md:p-16  relative'>
 
             <div className="flex w-full justify-center flex-col items-center">
-                <div onClick={() => router.push("/")} className="bg-yellow my-2 flex items-center gap-4 hover:border-yellow hover:text-yellow hover:border-2 cursor-pointer duration-100 ease-in-out transition-all  hover:bg-transparent text-2xl text-black py-2 px-8 font-mono rounded-full mt-8">
+                <div onClick={() => router.push("/")} className="bg-yellow my-2 flex items-center gap-4 border-b-4 border-white  hover:text-yellow  cursor-pointer duration-100 ease-in-out transition-all  hover:bg-transparent text-2xl text-black py-2 px-8 font-mono rounded-full mt-8">
                     <p>Home</p>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
                         <path fillRule="evenodd" d="M5.25 6.31v9.44a.75.75 0 0 1-1.5 0V4.5a.75.75 0 0 1 .75-.75h11.25a.75.75 0 0 1 0 1.5H6.31l13.72 13.72a.75.75 0 1 1-1.06 1.06L5.25 6.31Z" clipRule="evenodd" />
@@ -299,8 +302,8 @@ function CreateRankem() {
                         <div
                             onClick={() => create()}
                             className={`my-2 cursor-pointer duration-100 ease-in-out transition-all text-2xl py-2 px-8 font-mono rounded-full mt-8 ${isLoading
-                                    ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                                    : 'bg-pink hover:border-pink hover:text-pink hover:border-2 hover:bg-transparent text-white'
+                                ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                                : 'bg-pink hover:border-pink hover:text-pink hover:border-2 hover:bg-transparent text-white'
                                 }`}
                         >
                             {isLoading ? 'Creating...' : 'Create'}

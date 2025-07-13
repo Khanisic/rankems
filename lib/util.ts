@@ -44,6 +44,9 @@ export function saveUserVote(gameId: string, rankings: { [key: string]: string[]
     };
     
     sessionStorage.setItem(voteKey, JSON.stringify(voteData));
+    
+    // Add game to user's games array
+    addGameToUserGames(gameId);
 }
 
 export function getUserVote(gameId: string): UserVote | null {
@@ -72,4 +75,43 @@ export function clearUserVote(gameId: string): void {
 export function isUserEditingVote(gameId: string): boolean {
     const userVote = getUserVote(gameId);
     return userVote?.isEditing || false;
+}
+
+// Games array utilities for tracking user's participated games
+export function getUserGames(): string[] {
+    if (typeof window === 'undefined') return [];
+    
+    const gamesData = sessionStorage.getItem('games');
+    if (!gamesData) return [];
+    
+    try {
+        return JSON.parse(gamesData) as string[];
+    } catch (error) {
+        console.error('Error parsing games from session storage:', error);
+        return [];
+    }
+}
+
+export function addGameToUserGames(gameId: string): void {
+    if (typeof window === 'undefined') return;
+    
+    const games = getUserGames();
+    if (!games.includes(gameId)) {
+        games.push(gameId);
+        sessionStorage.setItem('games', JSON.stringify(games));
+    }
+}
+
+export function removeGameFromUserGames(gameId: string): void {
+    if (typeof window === 'undefined') return;
+    
+    const games = getUserGames();
+    const updatedGames = games.filter(id => id !== gameId);
+    sessionStorage.setItem('games', JSON.stringify(updatedGames));
+}
+
+export function clearUserGames(): void {
+    if (typeof window === 'undefined') return;
+    
+    sessionStorage.removeItem('games');
 }

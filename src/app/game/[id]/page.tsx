@@ -63,31 +63,31 @@ function GamePage() {
                         setGame(gameData)
                         setNames([...gameData.friends])
                         setCategories(gameData.categories)
-                        
+
                         // Check if user has already voted on this game
                         const hasVoted = hasUserVoted(params.id as string)
                         const previousVote = getUserVote(params.id as string)
-                        
+
                         setIsEditingVote(hasVoted)
-                        
+
                         // If user has voted, load their previous rankings and identity
                         if (hasVoted && previousVote?.rankings) {
                             setRankings(previousVote.rankings)
-                            
+
                             // Load rankings for the current category (first category)
                             const firstCategoryName = gameData.categories[0]
                             const firstCategoryRankings = previousVote.rankings[firstCategoryName]
-                            
+
                             if (firstCategoryRankings && firstCategoryRankings.length > 0) {
                                 setNames(firstCategoryRankings)
                             }
-                            
+
                             // If restrictive mode and user has previously voted, set their identity
                             if (gameData.votingMode === 'restrictive' && previousVote.identity) {
                                 setSelectedIdentity(previousVote.identity)
                             }
                         }
-                        
+
                         // Check if restrictive mode and show identity modal
                         if (gameData.votingMode === 'restrictive') {
                             // Only show modal if user hasn't voted before
@@ -116,13 +116,13 @@ function GamePage() {
             setIdentityError("You have already voted in this game! You cannot select a new identity.")
             return
         }
-        
+
         // Check if this person has already voted
         if (game?.usersRanked.includes(identity)) {
             setIdentityError("This person has already voted in this game!")
             return
         }
-        
+
         setSelectedIdentity(identity)
         setShowIdentityModal(false)
         setIdentityError("")
@@ -139,7 +139,7 @@ function GamePage() {
         // 2) Advance category
         const nextCategoryIndex = Math.min(category + 1, categories.length - 1)
         setCategory(nextCategoryIndex)
-        
+
         // 3) Load previous vote data for next category if available
         if (isEditingVote && updatedRankings[categories[nextCategoryIndex]]) {
             setNames(updatedRankings[categories[nextCategoryIndex]])
@@ -168,8 +168,8 @@ function GamePage() {
 
             const identity = game?.votingMode === 'restrictive' ? selectedIdentity : null
             const res = await submitRankingsandResults(
-                updatedRankings, 
-                game!.id, 
+                updatedRankings,
+                game!.id,
                 identity,
                 isEditingVote,
                 previousRankings
@@ -229,27 +229,26 @@ function GamePage() {
                         <p className="text-white text-xl font-sans mb-6 text-center">
                             This game uses restrictive voting. Please select who you are from the list below:
                         </p>
-                        
+
                         {identityError && (
                             <div className="bg-red-500 text-white p-3 rounded-lg mb-4 text-center font-mono">
                                 {identityError}
                             </div>
                         )}
-                        
+
                         <div className="space-y-3">
                             {game.friends.map((friend) => {
                                 const hasVoted = game.usersRanked.includes(friend);
                                 const isDisabled = hasVoted;
-                                
+
                                 return (
                                     <button
                                         key={friend}
                                         onClick={() => handleIdentitySelect(friend)}
-                                        className={`w-full p-3 cursor-pointer rounded-lg font-sans text-2xl transition-colors ${
-                                            isDisabled
+                                        className={`w-full p-3 cursor-pointer rounded-lg font-sans text-2xl transition-colors ${isDisabled
                                                 ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                                                 : 'bg-yellow text-black hover:bg-box hover:border-yellow hover:border-2 hover:text-yellow'
-                                        }`}
+                                            }`}
                                         disabled={isDisabled}
                                     >
                                         {friend} {hasVoted && '(Already voted)'}
@@ -257,7 +256,7 @@ function GamePage() {
                                 );
                             })}
                         </div>
-                        
+
                         <button
                             onClick={() => router.push("/")}
                             className="w-fit mx-auto mt-4 bg-gray-600 cursor-pointer text-white p-3 text-xl rounded-lg font-mono hover:bg-gray-700 transition-colors"
@@ -293,7 +292,7 @@ function GamePage() {
                 </div>
             )
         }
-        
+
         return (
             <div className="bg-bg min-h-screen flex items-center justify-center">
                 <div className="text-white text-2xl font-mono">Please select your identity to continue...</div>
@@ -304,14 +303,13 @@ function GamePage() {
     return (
         <div className="bg-bg min-h-screen pb-10 px-8 md:p-16 flex flex-col items-center justify-center">
             <div className="flex w-fit z-0 justify-center flex-col items-center">
-                <div
-                    onClick={() => router.push("/")}
-                    className="bg-yellow my-2 flex items-center gap-4 hover:border-yellow hover:text-yellow hover:border-2 cursor-pointer duration-100 ease-in-out transition-all hover:bg-transparent text-xl text-black py-2 px-8 font-mono rounded-full mt-8"
-                >
-                    <p>Home</p>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                        <path fillRule="evenodd" d="M5.25 6.31v9.44a.75.75 0 0 1-1.5 0V4.5a.75.75 0 0 1 .75-.75h11.25a.75.75 0 0 1 0 1.5H6.31l13.72 13.72a.75.75 0 1 1-1.06 1.06L5.25 6.31Z" clipRule="evenodd" />
-                    </svg>
+                <div className="flex w-full justify-center flex-col items-center">
+                    <div onClick={() => router.push("/")} className="bg-yellow my-2 flex items-center gap-4 border-b-4 border-white  hover:text-yellow  cursor-pointer duration-100 ease-in-out transition-all  hover:bg-transparent text-2xl text-black py-2 px-8 font-mono rounded-full mt-8">
+                        <p>Home</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+                            <path fillRule="evenodd" d="M5.25 6.31v9.44a.75.75 0 0 1-1.5 0V4.5a.75.75 0 0 1 .75-.75h11.25a.75.75 0 0 1 0 1.5H6.31l13.72 13.72a.75.75 0 1 1-1.06 1.06L5.25 6.31Z" clipRule="evenodd" />
+                        </svg>
+                    </div>
                 </div>
             </div>
 
@@ -370,7 +368,7 @@ function GamePage() {
                     {names.map((name, index) => (
                         <Reorder.Item key={name} value={name} className="text-white px-6 text-2xl py-2 bg-purple flex items-center justify-between rounded-xl font-mono w-fit text-center cursor-move">
                             <p className='text-white font-mono text-2xl'>{index + 1}. {name}</p>
-                            
+
                         </Reorder.Item>
                     ))}
                 </Reorder.Group>
@@ -386,7 +384,7 @@ function GamePage() {
                                 setTimeout(() => {
                                     const prevCategory = Math.max(category - 1, 0);
                                     setCategory(prevCategory);
-                                    
+
                                     // Load previous vote data for previous category if available
                                     if (isEditingVote && rankings[categories[prevCategory]]) {
                                         setNames(rankings[categories[prevCategory]]);
@@ -395,7 +393,7 @@ function GamePage() {
                                         const shuffledNames = [...game!.friends].sort(() => Math.random() - 0.5);
                                         setNames(shuffledNames);
                                     }
-                                    
+
                                     // Stop shake animation
                                     controls.stop();
                                     controls.set("reset");
