@@ -13,6 +13,7 @@ interface Game {
     votingMode: string
     usersRanked: string[]
     createdAt: string
+    votesCount: number
     updatedAt: string
 }
 const variants = {
@@ -427,7 +428,7 @@ function GamePage() {
                         Voting Mode: <span className='text-blue'>{game.votingMode}</span>
                     </p>
                     <p className="text-white text-lg font-mono">
-                        <span className='text-blue'>{game.usersRanked.length}</span> people have voted
+                        <span className='text-blue'>{game?.votesCount}</span> people have voted
                     </p>
                 </div>
             </div>
