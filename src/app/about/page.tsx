@@ -93,7 +93,7 @@ function About() {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                         </svg>
                     </button>
-                    <div className={`overflow-hidden transition-all duration-300 ${openAccordions.bio ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <div className={`overflow-hidden transition-all duration-300 ${openAccordions.bio ? 'max-h-full opacity-100' : 'max-h-0 opacity-0'}`}>
                         <div className="px-8 pb-8 text-white font-base text-lg leading-relaxed space-y-4">
                             <p>
                                 I&apos;m a passionate <span className="text-blue">full-stack engineer</span> and a <span className="text-purple">Computer Science graduate student</span> at Bradley University, with a strong foundation in both frontend and backend technologies. Through hands-on experience at early-stage startups and academic research, I&apos;ve built and deployed scalable applications ranging from blockchain-integrated NFT marketplaces to AI-powered academic planners.
