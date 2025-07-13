@@ -385,7 +385,8 @@ export async function fetchTopPopularGames(limit: number = 5) {
     const gamesWithResults = await Games.aggregate([
       {
         $match: {
-          votesCount: { $gt: 0 } // Only games with at least 1 vote
+          votesCount: { $gt: 0 }, // Only games with at least 1 vote
+          votingMode: "public" // Only public games
         }
       },
       {
@@ -434,7 +435,8 @@ export async function fetchTopPopularGames(limit: number = 5) {
     // If aggregation returns no results, fallback to simple vote count sorting
     if (gamesWithResults.length === 0) {
       const fallbackGames = await Games.find({
-        votesCount: { $gt: 0 }
+        votesCount: { $gt: 0 },
+        votingMode: "public"
       })
       .sort({ votesCount: -1 })
       .limit(limit)
