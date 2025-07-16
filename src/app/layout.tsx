@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "Rankems",
-  description: "Rankems is a platform where you rank anything based on anything.",
+  description: "Rank anything based on anything.",
 };
 
 export default function RootLayout({

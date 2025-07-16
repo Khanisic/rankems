@@ -345,8 +345,8 @@ function GamePage() {
                     </div>
                 )}
 
-                <div className="flex flex-col justify-start items-start">
-                    <p className="text-white font-mono my-2 text-xl">
+                <div className="flex flex-col justify-center items-center">
+                    <div className="text-white font-mono my-2 text-xl flex-col md:flex-row flex items-center gap-2">
                         Category {`(${category + 1}/${categories.length}): `}
                         <motion.span
                             initial="reset"            // ensures it starts "reset"
@@ -358,7 +358,7 @@ function GamePage() {
                         >
                             {categories[category]}
                         </motion.span>
-                    </p>
+                    </div>
                     <p className="text-white font-mono my-2 text-xl">
                         <span className='text-pink'>Drag</span> and <span className='text-green'>drop</span> the names to arrange it with your <span className='text-purple'>rankings</span>!
                     </p>
