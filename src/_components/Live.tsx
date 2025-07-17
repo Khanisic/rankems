@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { fetchTopPopularGames, fetchResults, searchPublicGames } from '../../lib/actions/rank.actions'
+import { fetchTopLiveGames, fetchResults, searchPublicGames } from '../../lib/actions/rank.actions'
 import TrianglesLive from './TrianglesLive'
 
 
@@ -78,7 +78,7 @@ function Live() {
     const loadLiveGames = async () => {
         try {
             setLoading(true)
-            const games = await fetchTopPopularGames(8)
+            const games = await fetchTopLiveGames(8)
             const processedGames: LiveGameData[] = []
 
             await Promise.all(

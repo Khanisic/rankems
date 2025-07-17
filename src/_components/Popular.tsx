@@ -13,6 +13,7 @@ interface PopularGame {
     votingMode: string
     usersRanked: string[]
     votesCount: number
+    featured: boolean
     createdAt: string
     updatedAt: string
 }
