@@ -60,13 +60,6 @@ export async function createGame(title: string, friends: string[], categories: s
     })
     console.log(newGame)
     
-    // Log the activity
-    await logActivity(
-      `"${title}" rankem was created`,
-      'create',
-      code,
-      { title, friends: friends.length, categories: categories.length, votingMode }
-    );
     
     return newGame.id
 
@@ -91,13 +84,7 @@ export async function fetchGame(id: string) {
       return null
     }
 
-    // Log the activity
-    await logActivity(
-      `"${gameExists.title}" was viewed`,
-      'view',
-      id,
-      { title: gameExists.title, votingMode: gameExists.votingMode }
-    );
+    // Log the activ
 
     // Serialize the MongoDB document to a plain object
     const serializedGame = {
@@ -369,14 +356,6 @@ export async function fetchResults(id: string) {
       return null
     }
 
-    // Log the activity
-    await logActivity(
-      `"${game.title}" results were viewed`,
-      'view_results',
-      id,
-      { title: game.title, votesCount: game.votesCount }
-    );
-
     // Properly serialize the results by sorting them and ensuring they're plain objects
     const serializedResults = {
       id: results.id.toString(),
@@ -552,8 +531,6 @@ export async function fetchTopPopularGames(limit: number = 5) {
     throw new Error(errorMessage);
   }
 }
-
-
 
 
 export async function fetchTopLiveGames(limit: number = 5) {
