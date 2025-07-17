@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchTopPopularGames, fetchResults, searchPublicGames } from '../../lib/actions/rank.actions'
+import TrianglesLive from './TrianglesLive'
+
 
 interface PopularGame {
     id: string
@@ -44,23 +46,30 @@ interface GameResults {
     updatedAt: string
 }
 
+interface GameCategory {
+    name: string
+    items: RankingData[]
+}
+
 interface LiveGameData {
     id: string
     title: string
-    category: string
     votes: number
-    items: RankingData[]
+    categories: GameCategory[]
 }
 
 function Live() {
     const router = useRouter()
     const colours = ["#5D4A59", "#37635E", "#374963", "#3C3763"]
+    const coloursDark = ["#2E2234", "#21373D", "#1E243C", "#1C2238"]
+
     const [data, setData] = useState<LiveGameData[]>([])
     const [filteredData, setFilteredData] = useState<LiveGameData[]>([])
     const [loading, setLoading] = useState(true)
     const [searchLoading, setSearchLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState<string>("")
+    const [currentCategoryIndices, setCurrentCategoryIndices] = useState<{ [gameId: string]: number }>({})
 
     useEffect(() => {
         loadLiveGames()
@@ -76,9 +85,10 @@ function Live() {
                 games.map(async (game: PopularGame) => {
                     try {
                         const results: GameResults | null = await fetchResults(game.id)
+                        const categories: GameCategory[] = []
 
                         if (results && results.results.length > 0) {
-                            // Process each category separately
+                            // Process each category
                             results.results.forEach((categoryResult: CategoryResult) => {
                                 const items: RankingData[] = categoryResult.category.results
                                     .sort((a: GameResult, b: GameResult) => b.points - a.points)
@@ -89,16 +99,13 @@ function Live() {
                                         decrease: result.decrease || false,
                                     }))
 
-                                processedGames.push({
-                                    id: game.id,
-                                    title: game.title,
-                                    category: categoryResult.category.name,
-                                    votes: game.votesCount,
+                                categories.push({
+                                    name: categoryResult.category.name,
                                     items: items
                                 })
                             })
                         } else {
-                            // Fallback: if no results, create cards for each category with friends in original order
+                            // Fallback: if no results, create categories with friends in original order
                             game.categories.forEach((category: string) => {
                                 const items: RankingData[] = game.friends.map((friend: string, index: number) => ({
                                     name: friend,
@@ -107,19 +114,23 @@ function Live() {
                                     decrease: false,
                                 }))
 
-                                processedGames.push({
-                                    id: game.id,
-                                    title: game.title,
-                                    category: category,
-                                    votes: game.votesCount,
+                                categories.push({
+                                    name: category,
                                     items: items
                                 })
                             })
                         }
+
+                        processedGames.push({
+                            id: game.id,
+                            title: game.title,
+                            votes: game.votesCount,
+                            categories: categories
+                        })
                     } catch (error) {
                         console.error(`Failed to load results for game ${game.id}:`, error)
-                        // Fallback data structure - create cards for each category
-                        game.categories.forEach((category: string) => {
+                        // Fallback data structure
+                        const categories: GameCategory[] = game.categories.map((category: string) => {
                             const items: RankingData[] = game.friends.map((friend: string, index: number) => ({
                                 name: friend,
                                 rank: index + 1,
@@ -127,13 +138,17 @@ function Live() {
                                 decrease: false,
                             }))
 
-                            processedGames.push({
-                                id: game.id,
-                                title: game.title,
-                                category: category,
-                                votes: game.votesCount,
+                            return {
+                                name: category,
                                 items: items
-                            })
+                            }
+                        })
+
+                        processedGames.push({
+                            id: game.id,
+                            title: game.title,
+                            votes: game.votesCount,
+                            categories: categories
                         })
                     }
                 })
@@ -141,6 +156,13 @@ function Live() {
 
             setData(processedGames)
             setFilteredData(processedGames)
+
+            // Initialize current category indices
+            const initialIndices: { [gameId: string]: number } = {}
+            processedGames.forEach(game => {
+                initialIndices[game.id] = 0
+            })
+            setCurrentCategoryIndices(initialIndices)
         } catch (error) {
             console.error('Failed to load live games:', error)
             setError('Failed to load live games')
@@ -166,9 +188,10 @@ function Live() {
                 searchResults.map(async (game: PopularGame) => {
                     try {
                         const results: GameResults | null = await fetchResults(game.id)
+                        const categories: GameCategory[] = []
 
                         if (results && results.results.length > 0) {
-                            // Process each category separately
+                            // Process each category
                             results.results.forEach((categoryResult: CategoryResult) => {
                                 const items: RankingData[] = categoryResult.category.results
                                     .sort((a: GameResult, b: GameResult) => b.points - a.points)
@@ -179,16 +202,13 @@ function Live() {
                                         decrease: result.decrease || false,
                                     }))
 
-                                processedSearchResults.push({
-                                    id: game.id,
-                                    title: game.title,
-                                    category: categoryResult.category.name,
-                                    votes: game.votesCount,
+                                categories.push({
+                                    name: categoryResult.category.name,
                                     items: items
                                 })
                             })
                         } else {
-                            // Fallback: if no results, create cards for each category with friends in original order
+                            // Fallback: if no results, create categories with friends in original order
                             game.categories.forEach((category: string) => {
                                 const items: RankingData[] = game.friends.map((friend: string, index: number) => ({
                                     name: friend,
@@ -197,19 +217,23 @@ function Live() {
                                     decrease: false,
                                 }))
 
-                                processedSearchResults.push({
-                                    id: game.id,
-                                    title: game.title,
-                                    category: category,
-                                    votes: game.votesCount,
+                                categories.push({
+                                    name: category,
                                     items: items
                                 })
                             })
                         }
+
+                        processedSearchResults.push({
+                            id: game.id,
+                            title: game.title,
+                            votes: game.votesCount,
+                            categories: categories
+                        })
                     } catch (error) {
                         console.error(`Failed to load results for game ${game.id}:`, error)
-                        // Fallback data structure - create cards for each category
-                        game.categories.forEach((category: string) => {
+                        // Fallback data structure
+                        const categories: GameCategory[] = game.categories.map((category: string) => {
                             const items: RankingData[] = game.friends.map((friend: string, index: number) => ({
                                 name: friend,
                                 rank: index + 1,
@@ -217,19 +241,30 @@ function Live() {
                                 decrease: false,
                             }))
 
-                            processedSearchResults.push({
-                                id: game.id,
-                                title: game.title,
-                                category: category,
-                                votes: game.votesCount,
+                            return {
+                                name: category,
                                 items: items
-                            })
+                            }
+                        })
+
+                        processedSearchResults.push({
+                            id: game.id,
+                            title: game.title,
+                            votes: game.votesCount,
+                            categories: categories
                         })
                     }
                 })
             )
 
             setFilteredData(processedSearchResults)
+
+            // Initialize current category indices for search results
+            const initialIndices: { [gameId: string]: number } = {}
+            processedSearchResults.forEach(game => {
+                initialIndices[game.id] = 0
+            })
+            setCurrentCategoryIndices(prev => ({ ...prev, ...initialIndices }))
         } catch (error) {
             console.error('Search failed:', error)
             setFilteredData([])
@@ -255,6 +290,22 @@ function Live() {
     const handleGameClick = (gameId: string) => {
         router.push(`/game/${gameId}`)
     }
+
+    const handlePrevCategory = (gameId: string) => {
+        setCurrentCategoryIndices(prev => {
+            const game = (filteredData.length > 0 ? filteredData : data).find(g => g.id === gameId)
+            if (!game) return prev
+
+            const currentIndex = prev[gameId] || 0
+            const newIndex = currentIndex > 0 ? currentIndex - 1 : game.categories.length - 1
+
+            return {
+                ...prev,
+                [gameId]: newIndex
+            }
+        })
+    }
+
 
     if (loading) {
         return (
@@ -283,15 +334,17 @@ function Live() {
 
     return (
         <div className="bg-bg h-full md:px-20 px-5">
-            <p className="text-white font-mono text-4xl mt-10 mb-2 text-center">Current <span className="text-yellow">Live</span> Rankems</p>
-            <p className="text-white font-sans text-xl text-center mb-4">You can update your ranking anytime.</p>
-            <p className="text-white font-sans text-2xl text-center mb-4">Below are the live results of your rankems.</p>
+            <div className="relative z-0 w-full flex items-center justify-center">
+                <TrianglesLive />           
+                <p className="text-white font-mono text-3xl z-10 md:text-6xl mt-10 mb-2 text-center">Current <span className="text-yellow">Live</span> Rankems</p>
+            </div>
+            <p className="text-white font-lond text-2xl text-center mb-4">Below are the live results of your rankems.</p>
             <div className='flex-col md:flex-row flex items-center justify-center w-full gap-4 mb-10'>
                 <div className=" flex items-center justify-center w-fit gap-2 bg-bg border-b-2 border-white rounded-full px-4 py-2">
                     <input
                         type="text"
                         placeholder="Search for rankems"
-                        className="text-blue text-center font-mono text-2xl outline-none bg-transparent"
+                        className="text-white text-center font-mono text-2xl outline-none bg-transparent"
                         value={searchTerm}
                         onChange={handleSearchInputChange}
                         onKeyDown={handleKeyDown}
@@ -316,6 +369,7 @@ function Live() {
                     )}
                 </button>
             </div>
+            {/* Desktop View */}
             <div className="relative hidden md:block md:columns-2 lg:columns-3 xl:columns-4 gap-8">
                 {displayData?.length === 0 && searchTerm.trim() !== "" ? (
                     <div className="text-center w-full justify-center items-center mx-auto">
@@ -327,57 +381,134 @@ function Live() {
                         </p>
                     </div>
                 ) : (
-                    displayData?.map((item, index) => (
-                        <div
-                            key={item.id + index}
-                            className="mt-8  z-20 break-inside-avoid h-fit border border-border-box rounded-3xl p-4 cursor-pointer hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-lg"
-                            style={{ backgroundColor: colours[index % colours.length] }}
-                            onClick={() => handleGameClick(item.id)}
-                        >
-                            {
-                                item.title &&
-                                <p className="text-white font-mono text-2xl px-4 text-center mb-2">{item.title}</p>
-                            }
-                            <p className="text-white font-mono text-lg text-center mb-2">{item.category}</p>
-                            <div className="flex flex-col items-center gap-2 justify-center">
-                                {item.items.map((rankItem, rankIndex) => (
-                                    <div key={rankIndex} className="w-full flex gap-3 items-center group bg-bg border-1 border-border-box rounded-xl px-5 py-2 justify-between">
-                                        <div className="flex gap-3 items-center">
-                                            <p className="font-base text-white text-sm">{rankItem.rank}.</p>
-                                            {rankItem.increase &&
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                </svg>
-                                            }
+                    displayData?.map((item, mainIndex) => {
+                        const currentCategoryIndex = currentCategoryIndices[item.id] || 0
+                        const currentCategory = item.categories[currentCategoryIndex]
+                        const hasMultipleCategories = item.categories.length > 1
 
-                                            {rankItem.decrease &&
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                </svg>
-                                            }
+                        return (
+                            <div
+                                key={item.id}
+                                className="relative z-0">
+                                <div className=" z-10 mt-10 p-4 break-inside-avoid h-fit border border-border-box rounded-3xl  hover:-translate-y-2 transition-transform duration-300 ease-in-out hover:shadow-2xl " style={{ backgroundColor: colours[mainIndex % colours.length] }}>
+                                    {item.title && (
+                                        <p className="text-white font-mono text-2xl px-4 text-center z-10">{item.title}</p>
+                                    )}
+                                    <p className="text-white font-lond text-base text-center">{item.votes} votes</p>
+                                    <div className="flex flex-col items-center gap-2 justify-center">
+                                        {currentCategory.items.map((rankItem, rankIndex) => (
+                                            <div key={rankIndex} className="w-full flex gap-3 items-center group bg-bg border-1 border-border-box rounded-xl px-5 py-2 justify-between">
+                                                <div className="flex gap-3 items-center">
+                                                    <p className="font-base text-white text-sm">{rankItem.rank}.</p>
+                                                    {rankItem.increase &&
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                        </svg>
+                                                    }
 
-                                            {!rankItem.increase && !rankItem.decrease &&
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
-                                                    <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
-                                                </svg>
-                                            }
-                                        </div>
-                                        <p className="font-base text-white text-lg w-full leading-none text-center pr-12 md:pr-5">{rankItem.name}</p>
+                                                    {rankItem.decrease &&
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                        </svg>
+                                                    }
+
+                                                    {!rankItem.increase && !rankItem.decrease &&
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
+                                                            <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                                                        </svg>
+                                                    }
+                                                </div>
+                                                <p className="font-base text-white text-lg w-full leading-none text-center pr-12 md:pr-5">{rankItem.name}</p>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+
+
+                                    {/* Category header with navigation */}
+                                    <div className="flex items-center justify-center my-2 gap-2 px-2">
+
+                                        <p className="text-white font-lond text-2xl text-center">
+                                            {currentCategory.name}
+                                        </p>
+                                    </div>
+                                    {hasMultipleCategories &&
+                                        <div className='w-full flex justify-center gap-2'>
+                                            {item.categories.map((currentCategory, index) => {
+                                                return (
+                                                    <div key={index} className={`w-3 h-3 rounded-full bg-white ${index === currentCategoryIndex ? 'border-b-2 border-white' : ''}`} style={{ backgroundColor: coloursDark[mainIndex % colours.length] }}>
+
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    }
+                                    <div className="flex items-center justify-between gap-2 my-2">
+                                        {hasMultipleCategories && (
+                                            <div className='flex items-center justify-center absolute left-0 bottom-0  rounded-bl-3xl rounded-tr-3xl  w-15 h-12 bg-bg group'>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        handlePrevCategory(item.id)
+                                                    }}
+                                                    className={`text-white cursor-pointer flex items-center gap-0 relative outline-none group-hover:scale-120 group-hover:-translate-x-1 transition-all ease-in-out duration-300`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 absolute group-hover:left-2 transition-all ease-in-out duration-300">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {hasMultipleCategories && (
+                                            <div className='flex items-center justify-center absolute right-0 bottom-0 rounded-br-3xl rounded-tl-3xl  w-15 h-12 bg-bg group'>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        handlePrevCategory(item.id)
+                                                    }}
+                                                    className={`text-white cursor-pointer flex items-center gap-0 relative outline-none group-hover:scale-120 group-hover:-translate-x-1 transition-all ease-in-out duration-300`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 absolute group-hover:left-2 transition-all ease-in-out duration-300">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                </div>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleGameClick(item.id)
+                                    }}
+                                    style={{ color: colours[mainIndex % colours.length] }}
+                                    className="text-white absolute -bottom-5 left-[50%] -translate-x-1/2 mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-yellow  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors"
+                                >
+                                    <p className="text-white font-mono md:text-xl text-lg group-hover:text-yellow">Rank This!</p>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-yellow transition-all ease-in-out duration-300">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                                    </svg>
+                                </button>
+                                {hasMultipleCategories &&
+                                    <div style={{ backgroundColor: coloursDark[mainIndex % colours.length] }} className="absolute top-[15px] left-3 -z-10  w-full h-[95%]  rounded-3xl">
+                                    </div>
+                                }
+
+                                {hasMultipleCategories &&
+                                    <div style={{ backgroundColor: coloursDark[mainIndex % colours.length] }} className="absolute top-[15px] right-3 -z-10  w-full h-[95%]  rounded-3xl">
+                                    </div>
+                                }
                             </div>
-                            <p className="text-white font-mono text-sm text-center mt-2">{item.votes} votes</p>
-
-                            <button style={{ color: colours[index % colours.length] }} className="text-white relative mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-blue  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors">
-                                <p style={{ color: colours[index % colours.length] }} className="text-white font-mono md:text-xl text-lg group-hover:text-blue">Rank This!</p>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-white transition-all ease-in-out duration-300">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                                </svg>
-                            </button>
-
-
-                        </div>
-                    ))
+                        )
+                    })
                 )}
             </div>
 
@@ -393,54 +524,135 @@ function Live() {
                         </p>
                     </div>
                 ) : (
-                    displayData?.map((item, index) => (
-                        <div
-                            key={item.id + index}
-                            className="mt-8 z-20 break-inside-avoid h-fit border border-border-box rounded-3xl p-4 cursor-pointer hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-lg"
-                            style={{ backgroundColor: colours[index % colours.length] }}
-                            onClick={() => handleGameClick(item.id)}
-                        >
-                            {
-                                item.title &&
-                                <p className="text-white font-mono text-2xl text-center mb-2">{item.title} </p>
-                            }
-                            <p className="text-white font-mono text-lg text-center mb-2">{item.category}</p>
-                            <div className="flex flex-col items-center gap-2 justify-center">
-                                {item.items.map((rankItem, rankIndex) => (
-                                    <div key={rankIndex} className="w-full flex gap-3 items-center group bg-bg border-1 border-border-box rounded-xl px-5 py-2 justify-between">
-                                        <div className="flex gap-3 items-center">
-                                            <p className="font-base text-white text-sm">{rankItem.rank}.</p>
-                                            {rankItem.increase &&
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                </svg>
-                                            }
+                    displayData?.map((item, mainIndex) => {
+                        const currentCategoryIndex = currentCategoryIndices[item.id] || 0
+                        const currentCategory = item.categories[currentCategoryIndex]
+                        const hasMultipleCategories = item.categories.length > 1
 
-                                            {rankItem.decrease &&
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                </svg>
-                                            }
+                        return (
+                            <div
+                                key={item.id}
+                                className="relative z-0">
 
-                                            {!rankItem.increase && !rankItem.decrease &&
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
-                                                    <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
-                                                </svg>
-                                            }
-                                        </div>
-                                        <p className="font-base text-white text-lg w-full leading-none text-center pr-4">{rankItem.name}</p>
+                                <div className=" z-10 mt-10 p-4 break-inside-avoid h-fit border border-border-box rounded-3xl  hover:-translate-y-2 transition-transform duration-300 ease-in-out hover:shadow-2xl " style={{ backgroundColor: colours[mainIndex % colours.length] }}>
+                                    {item.title && (
+                                        <p className="text-white font-mono text-2xl px-4 text-center z-10">{item.title}</p>
+                                    )}
+                                    <p className="text-white font-lond text-base text-center">{item.votes} votes</p>
+                                    <div className="flex flex-col items-center gap-2 justify-center">
+                                        {currentCategory.items.map((rankItem, rankIndex) => (
+                                            <div key={rankIndex} className="w-full flex gap-3 items-center group bg-bg border-1 border-border-box rounded-xl px-5 py-2 justify-between">
+                                                <div className="flex gap-3 items-center">
+                                                    <p className="font-base text-white text-sm">{rankItem.rank}.</p>
+                                                    {rankItem.increase &&
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                        </svg>
+                                                    }
+
+                                                    {rankItem.decrease &&
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                        </svg>
+                                                    }
+
+                                                    {!rankItem.increase && !rankItem.decrease &&
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
+                                                            <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                                                        </svg>
+                                                    }
+                                                </div>
+                                                <p className="font-base text-white text-lg w-full leading-none text-center pr-12 md:pr-5">{rankItem.name}</p>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+
+
+                                    {/* Category header with navigation */}
+                                    <div className="flex items-center justify-center my-2 gap-2 px-2">
+
+                                        <p className="text-white font-lond text-2xl text-center">
+                                            {currentCategory.name}
+                                        </p>
+                                    </div>
+                                    {hasMultipleCategories &&
+                                        <div className='w-full flex justify-center gap-2'>
+                                            {item.categories.map((currentCategory, index) => {
+                                                return (
+                                                    <div key={index} className={`w-3 h-3 rounded-full bg-white ${index === currentCategoryIndex ? 'border-b-2 border-white' : ''}`} style={{ backgroundColor: coloursDark[mainIndex % colours.length] }}>
+
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    }
+                                    <div className="flex items-center justify-between gap-2 my-2">
+                                        {hasMultipleCategories && (
+                                            <div className='flex items-center justify-center absolute left-0 bottom-0  rounded-bl-3xl rounded-tr-3xl  w-15 h-12 bg-bg group'>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        handlePrevCategory(item.id)
+                                                    }}
+                                                    className={`text-white cursor-pointer flex items-center gap-0 relative outline-none group-hover:scale-120 group-hover:-translate-x-1 transition-all ease-in-out duration-300`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 absolute group-hover:left-2 transition-all ease-in-out duration-300">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {hasMultipleCategories && (
+                                            <div className='flex items-center justify-center absolute right-0 bottom-0 rounded-br-3xl rounded-tl-3xl  w-15 h-12 bg-bg group'>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        handlePrevCategory(item.id)
+                                                    }}
+                                                    className={`text-white cursor-pointer flex items-center gap-0 relative outline-none group-hover:scale-120 group-hover:-translate-x-1 transition-all ease-in-out duration-300`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5 absolute group-hover:left-2 transition-all ease-in-out duration-300">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                </div>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleGameClick(item.id)
+                                    }}
+                                    style={{ color: colours[mainIndex % colours.length] }}
+                                    className="text-white absolute -bottom-5 left-[50%] -translate-x-1/2 mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-yellow  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors"
+                                >
+                                    <p className="text-white font-mono md:text-xl text-lg group-hover:text-yellow">Rank This!</p>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-yellow transition-all ease-in-out duration-300">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                                    </svg>
+                                </button>
+                                {hasMultipleCategories &&
+                                    <div style={{ backgroundColor: coloursDark[mainIndex % colours.length] }} className="absolute top-15 left-3 -z-10  w-full h-[85%]  rounded-3xl">
+                                    </div>
+                                }
+
+                                {hasMultipleCategories &&
+                                    <div style={{ backgroundColor: coloursDark[mainIndex % colours.length] }} className="absolute top- right-3 -z-10  w-full h-[85%]  rounded-3xl">
+                                    </div>
+                                }
                             </div>
-                            <p className="text-white font-mono text-lg text-center mt-2">{item.votes} votes</p>
-                            <button style={{ color: colours[index % colours.length] }} className="text-white relative mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-blue  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors">
-                                <p style={{ color: colours[index % colours.length] }} className="text-white font-mono md:text-xl text-lg group-hover:text-blue">Rank This!</p>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-white transition-all ease-in-out duration-300">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                                </svg>
-                            </button>
-                        </div>
-                    ))
+                        )
+                    })
                 )}
             </div>
         </div>

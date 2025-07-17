@@ -53,7 +53,7 @@ function CreateRankem() {
     }
 
     return (
-        <div className='bg-bg min-h-screen px-8 pb-20 md:p-16  relative'>
+        <div className='bg-bg min-h-screen px-8 pb-20  relative'>
 
             <div className="flex w-full justify-center flex-col items-center">
                 <div onClick={() => router.push("/")} className="bg-yellow my-2 flex items-center gap-4 border-b-4 border-white  hover:text-yellow  cursor-pointer duration-100 ease-in-out transition-all  hover:bg-transparent text-2xl text-black py-2 px-8 font-mono rounded-full mt-8">

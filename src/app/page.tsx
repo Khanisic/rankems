@@ -31,8 +31,8 @@ export default function Home() {
         <p className="font-base text-white text-xl -translate-x-[210px] translate-y-[-160px] rotate-[15deg]">Most Popular right now!</p>
       </div>
 
-      <div className="md:py-20 py-4 z-10">
-        <p className="text-pink font-mono m-0 z-10 text-5xl lg:text-7xl text-center leading-[80px] pt-8">Rank Em Up</p>
+      <div className="md:py-6 py-4 z-10">
+        <p className="text-pink font-mono m-0 z-10 text-5xl lg:text-7xl text-center leading-[80px] pt-4">Rank Em Up</p>
         <p className="text-white font-base text-xl lg:text-2xl px-6 text-center z-10">An application where you rank <span className="text-yellow">anything</span> based on <span className="text-purple">anything</span>. </p>
         <div className="flex md:flex-row flex-col z-10 gap-8 items-center justify-center pt-5">
           <Link href="/create">
