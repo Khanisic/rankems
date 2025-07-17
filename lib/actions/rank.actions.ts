@@ -550,7 +550,7 @@ export async function fetchAllGamesForAdmin() {
         const results = await Results.findOne({ id: game._id });
         return {
           id: game.id,
-          _id: game._id.toString(),
+          _id: game._id,
           title: game.title,
           friends: game.friends,
           categories: game.categories,
