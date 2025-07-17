@@ -647,7 +647,7 @@ function Live() {
                                 }
 
                                 {hasMultipleCategories &&
-                                    <div style={{ backgroundColor: coloursDark[mainIndex % colours.length] }} className="absolute top- right-3 -z-10  w-full h-[85%]  rounded-3xl">
+                                    <div style={{ backgroundColor: coloursDark[mainIndex % colours.length] }} className="absolute top-15 right-3 -z-10  w-full h-[85%]  rounded-3xl">
                                     </div>
                                 }
                             </div>
