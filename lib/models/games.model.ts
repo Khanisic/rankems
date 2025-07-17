@@ -2,11 +2,13 @@ import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true, },
+    title: { type: String, default: null }, // Optional title that can be added by admin
     friends: [{ type: String, required: true }],
     categories: [{ type: String, required: true }],
     votingMode: { type: String, required: true },
     usersRanked: [{ type: String }],
     votesCount: { type: Number, default: 0 },
+    featured: { type: Boolean, default: false },
 }, { timestamps: true });
 
 const Games = mongoose.models.Games || mongoose.model('Games', gameSchema);

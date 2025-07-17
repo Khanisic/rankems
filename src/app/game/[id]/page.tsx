@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 
 interface Game {
     id: string
+    title: string
     friends: string[]
     categories: string[]
     votingMode: string
@@ -246,8 +247,8 @@ function GamePage() {
                                         key={friend}
                                         onClick={() => handleIdentitySelect(friend)}
                                         className={`w-full p-3 cursor-pointer rounded-lg font-sans text-2xl transition-colors ${isDisabled
-                                                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                                : 'bg-yellow text-black hover:bg-box hover:border-yellow hover:border-2 hover:text-yellow'
+                                            ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                            : 'bg-yellow text-black hover:bg-box hover:border-yellow hover:border-2 hover:text-yellow'
                                             }`}
                                         disabled={isDisabled}
                                     >
@@ -313,7 +314,9 @@ function GamePage() {
                 </div>
             </div>
 
-            <div className="flex z-10 mt-5 flex-col gap-4 w-full max-w-4xl mx-auto">
+            <div className="flex z-10 mt-5 flex-col gap-2 w-full max-w-4xl mx-auto">
+
+
                 <div className="flex justify-center items-center w-full gap-10">
                     <p className="text-white font-mono text-2xl">Code: <span className='text-green'>{game.id}</span> </p>
                     <button
@@ -326,6 +329,31 @@ function GamePage() {
                         </svg>
                     </button>
                 </div>
+
+                <div className="flex justify-center items-center w-full">
+                    <h1 className="text-white font-mono text-3xl md:text-4xl text-center">
+                        {game.title}
+                    </h1>
+                </div>
+                <div className="flex flex-col justify-center items-center">
+                    <div className="text-white font-mono my-2 text-xl flex-col md:flex-row flex items-center gap-2">
+                        Category {`(${category + 1}/${categories.length}): `}
+                        <motion.span
+                            initial="reset"            // ensures it starts "reset"
+                            animate={controls}         // drives it via controls.start(...)
+                            variants={variants}        // has both reset & shake
+                            style={{ display: "inline-block" }}  // allow rotation
+                            // remove key={category}
+                            className='bg-yellow text-black px-4 py-1 rounded-lg ml-3'
+                        >
+                            {categories[category]}
+                        </motion.span>
+                    </div>
+                    <p className="text-white font-mono my-2 text-xl">
+                        <span className='text-pink'>Drag</span> and <span className='text-green'>drop</span> the names to arrange it with your <span className='text-purple'>rankings</span>!
+                    </p>
+                </div>
+
 
                 {/* Show editing indicator */}
                 {isEditingVote && (
@@ -345,24 +373,7 @@ function GamePage() {
                     </div>
                 )}
 
-                <div className="flex flex-col justify-center items-center">
-                    <div className="text-white font-mono my-2 text-xl flex-col md:flex-row flex items-center gap-2">
-                        Category {`(${category + 1}/${categories.length}): `}
-                        <motion.span
-                            initial="reset"            // ensures it starts "reset"
-                            animate={controls}         // drives it via controls.start(...)
-                            variants={variants}        // has both reset & shake
-                            style={{ display: "inline-block" }}  // allow rotation
-                            // remove key={category}
-                            className='bg-yellow text-black px-4 py-1 rounded-lg ml-3'
-                        >
-                            {categories[category]}
-                        </motion.span>
-                    </div>
-                    <p className="text-white font-mono my-2 text-xl">
-                        <span className='text-pink'>Drag</span> and <span className='text-green'>drop</span> the names to arrange it with your <span className='text-purple'>rankings</span>!
-                    </p>
-                </div>
+
 
                 <Reorder.Group axis="y" values={names} onReorder={setNames} className="flex flex-col gap-2 w-full justify-center items-center">
                     {names.map((name, index) => (

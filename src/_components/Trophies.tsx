@@ -19,12 +19,18 @@ function Trophies() {
             repeatType: "reverse",
             ease: "easeInOut",
         },
+        rotate: {
+            duration: 3,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut",
+        },
     };
 
     return (
         <motion.div
             className="md:flex hidden z-0 absolute items-center justify-center top-[250px] right-[200px]"
-            animate={{ y: [0, 58, 0], x: [0, 20, 0] }}
+            animate={{ y: [0, 58, 0], x: [0, 20, 0], rotate: [0, 40, 0] }}
             transition={{ ...floatTransition, y: { ...floatTransition.y, duration: 4 } } as any}
         >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-[150px] text-[#FFD700] translate-y-[-10px] translate-x-[10px] -rotate-35">
