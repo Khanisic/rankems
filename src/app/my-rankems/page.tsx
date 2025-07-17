@@ -6,6 +6,7 @@ import { getUserGames } from '../../../lib/util'
 
 interface Game {
     id: string
+    title: string
     friends: string[]
     categories: string[]
     votingMode: string
@@ -113,7 +114,7 @@ function Mine() {
 
                                 processedGames.push({
                                     id: game.id,
-                                    title: categoryResult.category.name,
+                                    title: `${game.title} - ${categoryResult.category.name}`,
                                     votes: game.votesCount,
                                     items: items,
                                     votedAt: votedAt
@@ -131,7 +132,7 @@ function Mine() {
 
                                 processedGames.push({
                                     id: game.id,
-                                    title: category,
+                                    title: `${game.title} - ${category}`,
                                     votes: game.votesCount,
                                     items: items,
                                     votedAt: votedAt

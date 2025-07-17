@@ -7,11 +7,13 @@ import toast from 'react-hot-toast'
 
 interface Game {
   id: string
+  title: string
   friends: string[]
   categories: string[]
   votingMode: string
   usersRanked: string[]
   votesCount: number
+  featured: boolean
   createdAt: string
   updatedAt: string
 }
@@ -34,6 +36,7 @@ interface Results {
   id: string
   votesCount: number
   results: CategoryResult[]
+  featured: boolean
   published: boolean
   createdAt: string
   updatedAt: string
@@ -131,7 +134,7 @@ function ResultsPage() {
 
   if (!results) {
     return (
-      <div className="bg-bg min-h-screen py-20 px-8 md:p-16">
+      <div className="bg-bg min-h-screen py-20 px-8 md:p-2">
         <div className="flex fixed top-0  w-fit z-0 justify-center flex-col items-center">
           <div
             onClick={() => router.push("/")}
@@ -167,11 +170,11 @@ function ResultsPage() {
   const currentCategoryResults = results.results[selectedCategory]
 
   return (
-    <div className="bg-bg min-h-screen flex flex-col items-center justify-center pb-10 px-8 md:p-16">
-      <div className="flex w-fit z-0 justify-center flex-col items-center">
+    <div className="bg-bg min-h-screen flex flex-col  pb-10 px-8 md:p-2">
+      <div className="flex w-fit z-0 mx-auto justify-center flex-col items-center">
         <div
           onClick={() => router.push("/")}
-          className="bg-yellow my-2 flex items-center gap-4 hover:border-yellow hover:text-yellow hover:border-2 cursor-pointer duration-100 ease-in-out transition-all hover:bg-transparent text-xl text-black py-2 px-8 font-mono rounded-full mt-8"
+          className="bg-yellow my-2 flex items-center gap-4 mx-auto hover:border-yellow hover:text-yellow hover:border-2 cursor-pointer duration-100 ease-in-out transition-all hover:bg-transparent text-xl text-black py-2 px-8 font-mono rounded-full mt-2"
         >
           <p>Home</p>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
@@ -181,6 +184,8 @@ function ResultsPage() {
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-4xl mx-auto">
+
+
         <div className="flex justify-center items-center w-full gap-10">
           <p className="text-white font-mono text-2xl">Code: <span className='text-green'>{game.id}</span> </p>
           <button
@@ -194,52 +199,106 @@ function ResultsPage() {
           </button>
         </div>
 
-        <div className="flex items-center justify-center">
+        <div className="flex justify-center items-center w-full">
+          <h1 className="text-white font-mono text-3xl md:text-4xl text-center">
+            {game.title}
+          </h1>
+        </div>
+        <div className="flex flex-col md:flex-row items-center justify-center">
           <p className='text-white font-mono text-2xl'>Category: {`(${selectedCategory + 1}/${results.results.length})`}</p>
           <motion.span
-            initial="reset"            // ensures it starts “reset”
-            animate={controls}         // drives it via controls.start(...)
-            variants={variants}        // has both reset & shake
-            style={{ display: "inline-block" }}  // allow rotation
-            // remove key={category}
-            className='bg-yellow text-black text-center font-mono px-4 py-1 rounded-lg ml-3 text-2xl'
+            initial="reset"
+            animate={controls}
+            variants={variants}
+            style={{ display: "inline-block" }}
+            className='bg-yellow text-black text-center font-lond px-4 py-1 rounded-lg ml-3 text-2xl'
           >
             {currentCategoryResults.category.name}
           </motion.span>
         </div>
 
-        <div className="flex flex-col gap-2 w-full justify-center items-center">
-          {currentCategoryResults.category.results.map((ranking, index) => (
-            <div key={ranking.friend} className="text-white px-6 py-1 bg-box border-border-box border-1 rounded-full font-mono w-fit text-center flex items-center gap-2">
-              <div className="flex gap-3 items-center">
-                <p className="font-base text-white text-2xl">{index + 1}.</p>
-                {ranking.increase &&
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                  </svg>
-                }
+        <div className="flex flex-col gap-2 w-full justify-center items-center md:flex-row">
+          <div className='flex flex-col gap-6 w-full justify-center items-center md:flex-row'>
+            {selectedCategory !== 0 && (
+              <button
+                className="bg-green px-5 py-2 hidden md:flex  cursor-pointer border-b-2 rounded-full hover:bg-bg hover:border-green hover:text-green border-white transition-colors"
+                onClick={() => {
+                  controls.start("shake")
+                    .then(() => controls.start("reset"))
+                  setSelectedCategory((cat) => Math.max(cat - 1, 0))
+                }}
+              >
+                <p className="text-darkest font-mono text-md">Previous</p>
+              </button>
+            )}
+            <div className='flex flex-col gap-2 w-full justify-center items-center'>
+              {currentCategoryResults.category.results.map((ranking, index) => (
+                <div key={ranking.friend} className="text-white px-6 py-1 bg-box border-border-box border-1 rounded-full font-mono w-fit text-center flex items-center gap-2">
+                  <div className="flex gap-3 items-center">
+                    <p className="font-base text-white text-xl">{index + 1}.</p>
+                    {ranking.increase &&
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                    }
 
-                {ranking.decrease &&
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                  </svg>
-                }
+                    {ranking.decrease &&
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                    }
 
-                {!ranking.increase && !ranking.decrease &&
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
-                    <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
-                  </svg>
+                    {!ranking.increase && !ranking.decrease &&
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
+                        <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                      </svg>
 
-                }
+                    }
 
-              </div>
-              <div className="text-white px-6 py-1 rounded-xl font-sans text-2xl w-fit text-center">{ranking.friend}</div>
-              <div className="text-lg text-white font-sans">( {ranking.points} pts )</div>
+                  </div>
+                  <div className="text-white px-3 md:px-5 py-0 md:py-1  rounded-xl font-sans text-2xl w-fit text-center">{ranking.friend}</div>
+                  <div className="text-sm text-white font-sans">{ranking.points} pts</div>
+                </div>
+              ))}
             </div>
-          ))}
+            {selectedCategory + 1 < results.results.length && (
+              <button
+                className="bg-purple px-5 py-2 hidden md:flex  cursor-pointer border-b-2 rounded-full hover:bg-bg hover:border-purple hover:text-purple border-white transition-colors"
+                onClick={() => {  
+                  controls.start("shake")
+                    .then(() => controls.start("reset"))
+                  setSelectedCategory((cat) => Math.min(cat + 1, results.results.length - 1))
+                }}
+              >
+                <p className="text-darkest font-mono text-md">Next</p>
+              </button>
+            )}  </div>
+
+          <div className='flex flex-col gap-2 w-full justify-center items-center'>
+            <div className="hidden justify-center md:flex items-center w-full gap-10">
+              <button
+                className="text-white bg-pink group hover:bg-bg border-b-2 hover:border-pink  hover:text-pink border-white px-5 py-1 rounded-full flex gap-2 items-center cursor-pointer transition-colors"
+                onClick={() => router.push(`/game/${game.id}`)}
+              >
+                <p className='text-white font-mono text-2xl group-hover:text-pink'>Vote Now</p>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-pink transition-all ease-in-out duration-300">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                </svg>
+              </button>
+            </div>
+            <div className="mt-3 text-center hidden md:flex flex-col gap-2 w-full justify-center items-center">
+              <p className="text-white text-xl font-mono mb-4">
+                Voting Mode: <span className='text-green'>{game.votingMode}</span>
+              </p>
+              <p className="text-white text-lg font-mono mb-2">
+                {results.votesCount} votes submitted
+              </p>
+            </div>
+          </div>
+
         </div>
 
-        <div className="flex justify-center items-start gap-4 flex-wrap">
+        <div className="flex justify-center items-start gap-4 flex-wrap md:hidden">
           {selectedCategory !== 0 && (
             <button
               className="bg-green px-5 py-2  cursor-pointer border-b-2 rounded-full hover:bg-bg hover:border-green hover:text-green border-white transition-colors"
@@ -254,7 +313,7 @@ function ResultsPage() {
           )}
           {selectedCategory + 1 < results.results.length && (
             <button
-              className="bg-pink px-5 py-2  cursor-pointer border-b-2 rounded-full hover:bg-bg hover:border-pink hover:text-pink border-white transition-colors"
+              className="bg-purple px-5 py-2  cursor-pointer border-b-2 rounded-full hover:bg-bg hover:border-purple hover:text-purple border-white transition-colors"
               onClick={() => {
                 controls.start("shake")
                   .then(() => controls.start("reset"))
@@ -266,15 +325,8 @@ function ResultsPage() {
           )}
         </div>
 
-        <div className="mt-3 text-center">
-          <p className="text-white text-xl font-mono mb-4">
-            Voting Mode: <span className='text-green'>{game.votingMode}</span>
-          </p>
-          <p className="text-white text-lg font-mono mb-2">
-            {results.votesCount} votes submitted
-          </p>
-        </div>
-        <div className="flex justify-center items-center w-full gap-10">
+
+        <div className="flex justify-center md:hidden items-center w-full gap-10">
           <button
             className="text-white bg-pink group hover:bg-bg border-b-2 hover:border-pink  hover:text-pink border-white px-5 py-1 rounded-full flex gap-2 items-center cursor-pointer transition-colors"
             onClick={() => router.push(`/game/${game.id}`)}
@@ -284,6 +336,14 @@ function ResultsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
             </svg>
           </button>
+        </div>
+        <div className="mt-3 text-center md:hidden">
+          <p className="text-white text-xl font-mono mb-4">
+            Voting Mode: <span className='text-green'>{game.votingMode}</span>
+          </p>
+          <p className="text-white text-lg font-mono mb-2">
+            {results.votesCount} votes submitted
+          </p>
         </div>
       </div>
     </div >

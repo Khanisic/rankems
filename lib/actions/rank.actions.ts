@@ -34,11 +34,11 @@ interface ExistingResult {
 }
 
 
-export async function createGame(friends: string[], categories: string[], votingMode: string) {
+export async function createGame(title: string, friends: string[], categories: string[], votingMode: string) {
   try {
     dbConnect();
     const code = generateCode();
-    console.log(friends, categories, votingMode)
+    console.log(title, friends, categories, votingMode)
 
     const gameCodeExists = await Games.findOne({
       id: code
@@ -50,10 +50,12 @@ export async function createGame(friends: string[], categories: string[], voting
 
     const newGame = await Games.create({
       id: code,
+      title,
       votesCount: 0,
       friends,
       categories,
       votingMode,
+      featured: false,
     })
     console.log(newGame)
     return newGame.id
@@ -88,6 +90,7 @@ export async function fetchGame(id: string) {
       votingMode: gameExists.votingMode,
       usersRanked: gameExists.usersRanked || [],
       votesCount: gameExists.votesCount,
+      featured: gameExists.featured || false,
       createdAt: gameExists.createdAt?.toISOString(),
       updatedAt: gameExists.updatedAt?.toISOString(),
     }
@@ -338,6 +341,7 @@ export async function fetchResults(id: string) {
             .sort((a: Ranking, b: Ranking) => b.points - a.points) // Sort by points descending
         }
       })),
+      featured: results.featured || false,
       published: results.published,
       createdAt: results.createdAt?.toISOString(),
       updatedAt: results.updatedAt?.toISOString(),
@@ -387,7 +391,8 @@ export async function fetchTopPopularGames(limit: number = 5) {
       {
         $match: {
           votesCount: { $gt: 0 }, // Only games with at least 1 vote
-          votingMode: "public" // Only public games
+          votingMode: "public", // Only public games
+          featured: true // Only featured games
         }
       },
       {
@@ -437,7 +442,8 @@ export async function fetchTopPopularGames(limit: number = 5) {
     if (gamesWithResults.length === 0) {
       const fallbackGames = await Games.find({
         votesCount: { $gt: 0 },
-        votingMode: "public"
+        votingMode: "public",
+        featured: true
       })
       .sort({ votesCount: -1 })
       .limit(limit)
@@ -451,6 +457,7 @@ export async function fetchTopPopularGames(limit: number = 5) {
         votingMode: game.votingMode,
         usersRanked: game.usersRanked || [],
         votesCount: game.votesCount,
+        featured: game.featured || false,
         createdAt: game.createdAt?.toISOString(),
         updatedAt: game.updatedAt?.toISOString(),
       }));
@@ -465,6 +472,110 @@ export async function fetchTopPopularGames(limit: number = 5) {
       votingMode: game.votingMode,
       usersRanked: game.usersRanked || [],
       votesCount: game.votesCount,
+      featured: game.featured || false,
+      createdAt: game.createdAt?.toISOString(),
+      updatedAt: game.updatedAt?.toISOString(),
+    }));
+    
+    return serializedGames;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    throw new Error(errorMessage);
+  }
+}
+
+
+
+
+export async function fetchTopLiveGames(limit: number = 5) {
+  try {
+    await dbConnect();
+    
+    // Get games with results and calculate ranking scores
+    const gamesWithResults = await Games.aggregate([
+      {
+        $match: {
+          votesCount: { $gt: 0 }, // Only games with at least 1 vote
+          votingMode: "public", // Only public games
+        }
+      },
+      {
+        $lookup: {
+          from: 'results',
+          localField: '_id',
+          foreignField: 'id',
+          as: 'gameResults'
+        }
+      },
+      {
+        $match: {
+          'gameResults.0': { $exists: true } // Only games that have results
+        }
+      },
+      {
+        $addFields: {
+          // Calculate average ranking score across all categories and friends
+          avgRankingScore: {
+            $avg: {
+              $map: {
+                input: { $arrayElemAt: ['$gameResults.results', 0] },
+                as: 'category',
+                in: {
+                  $avg: {
+                    $map: {
+                      input: '$$category.category.results',
+                      as: 'result',
+                      in: '$$result.points'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        $sort: { avgRankingScore: -1, votesCount: -1 } // Sort by ranking score, then vote count
+      },
+      {
+        $limit: limit
+      }
+    ]);
+    
+    // If aggregation returns no results, fallback to simple vote count sorting
+    if (gamesWithResults.length === 0) {
+      const fallbackGames = await Games.find({
+        votesCount: { $gt: 0 },
+        votingMode: "public",
+      })
+      .sort({ votesCount: -1 })
+      .limit(limit)
+      .lean();
+      
+      return fallbackGames.map(game => ({
+        id: game.id,
+        title: game.title,
+        friends: game.friends,
+        categories: game.categories,
+        votingMode: game.votingMode,
+        usersRanked: game.usersRanked || [],
+        votesCount: game.votesCount,
+        featured: game.featured || false,
+        createdAt: game.createdAt?.toISOString(),
+        updatedAt: game.updatedAt?.toISOString(),
+      }));
+    }
+    
+    // Serialize the results with ranking-based ordering
+    const serializedGames = gamesWithResults.map(game => ({
+      id: game.id,
+      title: game.title,
+      friends: game.friends,
+      categories: game.categories,
+      votingMode: game.votingMode,
+      usersRanked: game.usersRanked || [],
+      votesCount: game.votesCount,
+      featured: game.featured || false,
       createdAt: game.createdAt?.toISOString(),
       updatedAt: game.updatedAt?.toISOString(),
     }));
@@ -480,17 +591,27 @@ export async function searchPublicGames(searchTerm: string) {
   try {
     await dbConnect();
     
-    // Search for games by category name that are public (have votes and results)
+    // Search for games by title or category name that are public (have votes and results)
     const matchingGames = await Games.aggregate([
       {
         $match: {
           votesCount: { $gt: 0 }, // Only games with at least 1 vote
-          categories: { 
-            $elemMatch: { 
-              $regex: searchTerm, 
-              $options: 'i' // Case-insensitive search
-            } 
-          }
+          $or: [
+            { 
+              title: { 
+                $regex: searchTerm, 
+                $options: 'i' // Case-insensitive search
+              } 
+            },
+            { 
+              categories: { 
+                $elemMatch: { 
+                  $regex: searchTerm, 
+                  $options: 'i' // Case-insensitive search
+                } 
+              } 
+            }
+          ]
         }
       },
       {
@@ -523,6 +644,7 @@ export async function searchPublicGames(searchTerm: string) {
       votingMode: game.votingMode,
       usersRanked: game.usersRanked || [],
       votesCount: game.votesCount,
+      featured: game.featured || false,
       createdAt: game.createdAt?.toISOString(),
       updatedAt: game.updatedAt?.toISOString(),
     }));
