@@ -3,6 +3,7 @@ import Games from "../models/games.model";
 import Results from "../models/results.model";
 import dbConnect from "../mongoose";
 import { generateCode } from "../util";
+import { logActivity } from "./activity.actions";
 
 // Define the structure of a single ranking
 interface Ranking {
@@ -58,6 +59,15 @@ export async function createGame(title: string, friends: string[], categories: s
       featured: false,
     })
     console.log(newGame)
+    
+    // Log the activity
+    await logActivity(
+      `"${title}" rankem was created`,
+      'create',
+      code,
+      { title, friends: friends.length, categories: categories.length, votingMode }
+    );
+    
     return newGame.id
 
   } catch (error: unknown) {
@@ -80,6 +90,14 @@ export async function fetchGame(id: string) {
     if (!gameExists) {
       return null
     }
+
+    // Log the activity
+    await logActivity(
+      `"${gameExists.title}" was viewed`,
+      'view',
+      id,
+      { title: gameExists.title, votingMode: gameExists.votingMode }
+    );
 
     // Serialize the MongoDB document to a plain object
     const serializedGame = {
@@ -264,6 +282,20 @@ export async function submitRankingsandResults(
         await game.save()
       }
 
+      // Log the activity
+      await logActivity(
+        `"${game.title}" got ${isEditing ? 'an updated' : 'a new'} vote`,
+        isEditing ? 'update' : 'vote',
+        id,
+        { 
+          title: game.title, 
+          isEditing, 
+          votesCount: game.votesCount,
+          categories: Object.keys(rankings),
+          userIdentifier: identity || 'Anonymous'
+        }
+      );
+
       return { msg: isEditing ? "Rankings updated" : "Rankings posted" }
     }
 
@@ -299,6 +331,19 @@ export async function submitRankingsandResults(
     game.votesCount = (game.votesCount || 0) + 1;
     await game.save()
 
+    // Log the activity
+    await logActivity(
+      `"${game.title}" got a new vote`,
+      'vote',
+      id,
+      { 
+        title: game.title, 
+        votesCount: game.votesCount,
+        categories: Object.keys(rankings),
+        userIdentifier: identity || 'Anonymous'
+      }
+    );
+
     console.log("Result stored:", createdResult);
 
     return { msg: "Rankings posted" }
@@ -323,6 +368,14 @@ export async function fetchResults(id: string) {
     if (!results) {
       return null
     }
+
+    // Log the activity
+    await logActivity(
+      `"${game.title}" results were viewed`,
+      'view_results',
+      id,
+      { title: game.title, votesCount: game.votesCount }
+    );
 
     // Properly serialize the results by sorting them and ensuring they're plain objects
     const serializedResults = {
@@ -365,6 +418,14 @@ export async function testRankingLogic(gameId: string) {
     const results = await Results.findOne({ id: game._id });
     if (!results) return { error: "Results not found" };
 
+    // Log the activity
+    await logActivity(
+      `Ranking logic test was run for "${game.title}"`,
+      'admin_test',
+      gameId,
+      { title: game.title, action: 'test_ranking_logic' }
+    );
+
     console.log("=== TESTING RANKING LOGIC ===");
     results.results.forEach((categoryResult: ExistingResult) => {
       console.log(`\nCategory: ${categoryResult.category.name}`);
@@ -385,6 +446,14 @@ export async function testRankingLogic(gameId: string) {
 export async function fetchTopPopularGames(limit: number = 5) {
   try {
     await dbConnect();
+    
+    // Log the activity
+    await logActivity(
+      `Popular games were fetched (limit: ${limit})`,
+      'fetch_popular',
+      undefined,
+      { limit, type: 'popular_games' }
+    );
     
     // Get games with results and calculate ranking scores
     const gamesWithResults = await Games.aggregate([
@@ -491,6 +560,14 @@ export async function fetchTopLiveGames(limit: number = 5) {
   try {
     await dbConnect();
     
+    // Log the activity
+    await logActivity(
+      `Live games were fetched (limit: ${limit})`,
+      'fetch_live',
+      undefined,
+      { limit, type: 'live_games' }
+    );
+    
     // Get games with results and calculate ranking scores
     const gamesWithResults = await Games.aggregate([
       {
@@ -591,6 +668,14 @@ export async function searchPublicGames(searchTerm: string) {
   try {
     await dbConnect();
     
+    // Log the activity
+    await logActivity(
+      `"${searchTerm}" term was searched`,
+      'search',
+      undefined,
+      { searchTerm, type: 'public_games' }
+    );
+    
     // Search for games by title or category name that are public (have votes and results)
     const matchingGames = await Games.aggregate([
       {
@@ -662,6 +747,14 @@ export async function fetchAllGamesForAdmin() {
   try {
     await dbConnect();
     
+    // Log the activity
+    await logActivity(
+      `Admin accessed all games dashboard`,
+      'admin_access',
+      undefined,
+      { action: 'fetch_all_games' }
+    );
+    
     const games = await Games.find({})
       .sort({ createdAt: -1 }) // Most recent first
       .lean();
@@ -704,6 +797,14 @@ export async function deleteGameAndResults(gameId: string) {
       throw new Error("Game not found");
     }
     
+    // Log the activity before deletion
+    await logActivity(
+      `"${game.title}" rankem was deleted by admin`,
+      'admin_delete',
+      gameId,
+      { title: game.title, votesCount: game.votesCount }
+    );
+    
     // Delete associated results
     await Results.deleteOne({ id: game._id });
     
@@ -721,6 +822,12 @@ export async function updateGameTitle(gameId: string, title: string) {
   try {
     await dbConnect();
     
+    // Get the old title first
+    const oldGame = await Games.findOne({ id: gameId });
+    if (!oldGame) {
+      throw new Error("Game not found");
+    }
+    
     const game = await Games.findOneAndUpdate(
       { id: gameId },
       { title: title.trim() },
@@ -730,6 +837,14 @@ export async function updateGameTitle(gameId: string, title: string) {
     if (!game) {
       throw new Error("Game not found");
     }
+    
+    // Log the activity
+    await logActivity(
+      `"${oldGame.title}" title was updated to "${title.trim()}" by admin`,
+      'admin_update',
+      gameId,
+      { oldTitle: oldGame.title, newTitle: title.trim() }
+    );
     
     return { 
       success: true, 
@@ -766,6 +881,14 @@ export async function updateGameFeatured(gameId: string, featured: boolean) {
       throw new Error("Game not found");
     }
     
+    // Log the activity
+    await logActivity(
+      `"${game.title}" was ${featured ? 'featured' : 'unfeatured'} by admin`,
+      'admin_update',
+      gameId,
+      { title: game.title, featured, action: featured ? 'featured' : 'unfeatured' }
+    );
+    
     return { 
       success: true, 
       message: `Game ${featured ? 'featured' : 'unfeatured'} successfully`,
@@ -790,6 +913,14 @@ export async function updateGameFeatured(gameId: string, featured: boolean) {
 export async function getGameStats() {
   try {
     await dbConnect();
+    
+    // Log the activity
+    await logActivity(
+      `Game stats were accessed`,
+      'admin_stats',
+      undefined,
+      { action: 'get_game_stats' }
+    );
     
     const totalGames = await Games.countDocuments();
     const gamesWithVotes = await Games.countDocuments({ votesCount: { $gt: 0 } });
