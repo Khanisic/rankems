@@ -34,11 +34,11 @@ interface ExistingResult {
 }
 
 
-export async function createGame(friends: string[], categories: string[], votingMode: string) {
+export async function createGame(title: string, friends: string[], categories: string[], votingMode: string) {
   try {
     dbConnect();
     const code = generateCode();
-    console.log(friends, categories, votingMode)
+    console.log(title, friends, categories, votingMode)
 
     const gameCodeExists = await Games.findOne({
       id: code
@@ -50,6 +50,7 @@ export async function createGame(friends: string[], categories: string[], voting
 
     const newGame = await Games.create({
       id: code,
+      title,
       votesCount: 0,
       friends,
       categories,
@@ -82,6 +83,7 @@ export async function fetchGame(id: string) {
     // Serialize the MongoDB document to a plain object
     const serializedGame = {
       id: gameExists.id,
+      title: gameExists.title,
       friends: gameExists.friends,
       categories: gameExists.categories,
       votingMode: gameExists.votingMode,
@@ -444,6 +446,7 @@ export async function fetchTopPopularGames(limit: number = 5) {
       
       return fallbackGames.map(game => ({
         id: game.id,
+        title: game.title,
         friends: game.friends,
         categories: game.categories,
         votingMode: game.votingMode,
@@ -457,6 +460,7 @@ export async function fetchTopPopularGames(limit: number = 5) {
     // Serialize the results with ranking-based ordering
     const serializedGames = gamesWithResults.map(game => ({
       id: game.id,
+      title: game.title,
       friends: game.friends,
       categories: game.categories,
       votingMode: game.votingMode,
@@ -477,17 +481,27 @@ export async function searchPublicGames(searchTerm: string) {
   try {
     await dbConnect();
     
-    // Search for games by category name that are public (have votes and results)
+    // Search for games by title or category name that are public (have votes and results)
     const matchingGames = await Games.aggregate([
       {
         $match: {
           votesCount: { $gt: 0 }, // Only games with at least 1 vote
-          categories: { 
-            $elemMatch: { 
-              $regex: searchTerm, 
-              $options: 'i' // Case-insensitive search
-            } 
-          }
+          $or: [
+            { 
+              title: { 
+                $regex: searchTerm, 
+                $options: 'i' // Case-insensitive search
+              } 
+            },
+            { 
+              categories: { 
+                $elemMatch: { 
+                  $regex: searchTerm, 
+                  $options: 'i' // Case-insensitive search
+                } 
+              } 
+            }
+          ]
         }
       },
       {
@@ -514,6 +528,7 @@ export async function searchPublicGames(searchTerm: string) {
     // Serialize the results
     const serializedGames = matchingGames.map(game => ({
       id: game.id,
+      title: game.title,
       friends: game.friends,
       categories: game.categories,
       votingMode: game.votingMode,

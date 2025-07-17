@@ -9,6 +9,7 @@ function CreateRankem() {
 
     const router = useRouter()
 
+    const [title, setTitle] = useState<string>("");
     const [friends, setFriends] = useState<string[]>(["Add", "Your", "Items", "Here"]);
     const [categories, setCategories] = useState<string[]>(["Most likely to..."]);
 
@@ -27,7 +28,7 @@ function CreateRankem() {
             setIsLoading(true)
             setError("")
 
-            const gameId = await createGame(friends, categories, votingMode)
+            const gameId = await createGame(title, friends, categories, votingMode)
 
             if (gameId) {
                 // Add game to user's games array in session storage
@@ -67,7 +68,19 @@ function CreateRankem() {
 
 
                 <p className='text-white text-5xl font-mono mt-5 text-center w-full'>Create a <span className='text-pink font-mono'>Rankem</span></p>
-                <div className="flex flex-wrap md:flex-nowrap gap-10 mt-6 justify-center">
+                
+                {/* Title Section */}
+                <div className="flex flex-col gap-4 mt-6 w-full max-w-md">
+                    <p className="text-white font-mono text-2xl text-center">Title</p>
+                    <input
+                        value={title}
+                        onChange={(e) => setTitle(e.currentTarget.value)}
+                        className="outline-none placeholder:text-slate-200 text-white border-pink border-b-2 bg-transparent font-sans text-2xl py-2 text-center w-full"
+                        placeholder="Enter a title for your rankem"
+                    />
+                </div>
+                
+                <div className="flex flex-wrap md:flex-nowrap gap-10 mt-8 justify-center">
                     <div className=" flex flex-col gap-4 justify-start">
                         <p className="text-white font-mono text-2xl ">Items</p>
                         <div className="flex gap-4 items-center ">
@@ -286,6 +299,11 @@ function CreateRankem() {
                 </div>
 
                 {
+                    !title.trim() &&
+                    <p className="text-white text-3xl font-base text-center mt-4 w-full">Title is required to create</p>
+                }
+
+                {
                     friends.length < 5 &&
                     <p className="text-white text-3xl font-base text-center mt-4 w-full">{5 - friends.length} more item(s) required to create</p>
                 }
@@ -296,7 +314,7 @@ function CreateRankem() {
                 }
 
                 {
-                    friends.length > 4 && categories.length > 0 &&
+                    title.trim() && friends.length > 4 && categories.length > 0 &&
 
                     <div className="flex w-full justify-center flex-col items-center">
                         <div

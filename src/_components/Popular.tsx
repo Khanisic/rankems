@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 
 interface PopularGame {
     id: string
+    title: string
     friends: string[]
     categories: string[]
     votingMode: string
@@ -376,7 +377,8 @@ function Popular() {
             <SubmitCursor />
             <div className="flex gap-3 items-center justify-between w-full">
                 <div className="flex flex-col">
-                    <p className="font-mono text-white md:text-3xl text-2xl">{currentCategoryName}</p>
+                    <p className="font-mono text-white md:text-2xl text-xl mb-1">{currentGame.title}</p>
+                    <p className="font-mono text-white md:text-lg text-base">{currentCategoryName}</p>
                     <p className="font-base text-pink text-lg">
                         Game {currentGameIndex + 1} of {Math.min(popularGames.length, 5)}
                     </p>

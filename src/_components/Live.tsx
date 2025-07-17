@@ -4,6 +4,7 @@ import { fetchTopPopularGames, fetchResults, searchPublicGames } from '../../lib
 
 interface PopularGame {
     id: string
+    title: string
     friends: string[]
     categories: string[]
     votingMode: string
@@ -46,6 +47,7 @@ interface GameResults {
 interface LiveGameData {
     id: string
     title: string
+    category: string
     votes: number
     items: RankingData[]
 }
@@ -89,7 +91,8 @@ function Live() {
 
                                 processedGames.push({
                                     id: game.id,
-                                    title: categoryResult.category.name,
+                                    title: game.title,
+                                    category: categoryResult.category.name,
                                     votes: game.votesCount,
                                     items: items
                                 })
@@ -106,7 +109,8 @@ function Live() {
 
                                 processedGames.push({
                                     id: game.id,
-                                    title: category,
+                                    title: game.title,
+                                    category: category,
                                     votes: game.votesCount,
                                     items: items
                                 })
@@ -125,7 +129,8 @@ function Live() {
 
                             processedGames.push({
                                 id: game.id,
-                                title: category,
+                                title: game.title,
+                                category: category,
                                 votes: game.votesCount,
                                 items: items
                             })
@@ -151,7 +156,7 @@ function Live() {
         }
 
         setSearchLoading(true)
-        
+
         try {
             // Search through all public games in the database
             const searchResults = await searchPublicGames(searchTerm)
@@ -176,7 +181,8 @@ function Live() {
 
                                 processedSearchResults.push({
                                     id: game.id,
-                                    title: categoryResult.category.name,
+                                    title: game.title,
+                                    category: categoryResult.category.name,
                                     votes: game.votesCount,
                                     items: items
                                 })
@@ -193,7 +199,8 @@ function Live() {
 
                                 processedSearchResults.push({
                                     id: game.id,
-                                    title: category,
+                                    title: game.title,
+                                    category: category,
                                     votes: game.votesCount,
                                     items: items
                                 })
@@ -212,7 +219,8 @@ function Live() {
 
                             processedSearchResults.push({
                                 id: game.id,
-                                title: category,
+                                title: game.title,
+                                category: category,
                                 votes: game.votesCount,
                                 items: items
                             })
@@ -280,9 +288,9 @@ function Live() {
             <p className="text-white font-sans text-2xl text-center mb-4">Below are the live results of your rankems.</p>
             <div className='flex-col md:flex-row flex items-center justify-center w-full gap-4 mb-10'>
                 <div className=" flex items-center justify-center w-fit gap-2 bg-bg border-b-2 border-white rounded-full px-4 py-2">
-                    <input 
-                        type="text" 
-                        placeholder="Search for rankems" 
+                    <input
+                        type="text"
+                        placeholder="Search for rankems"
                         className="text-blue text-center font-mono text-2xl outline-none bg-transparent"
                         value={searchTerm}
                         onChange={handleSearchInputChange}
@@ -293,7 +301,7 @@ function Live() {
                     </svg>
 
                 </div>
-                <button 
+                <button
                     onClick={handleSearch}
                     disabled={searchLoading}
                     className='flex items-center justify-center w-fit bg-blue group hover:bg-bg border-b-2 hover:border-blue  hover:text-blue border-white px-5 py-1 rounded-full gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
@@ -320,51 +328,55 @@ function Live() {
                     </div>
                 ) : (
                     displayData?.map((item, index) => (
-                    <div
-                        key={item.id + index}
-                        className="mt-8  z-20 break-inside-avoid h-fit border border-border-box rounded-3xl p-4 cursor-pointer hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-lg"
-                        style={{ backgroundColor: colours[index % colours.length] }}
-                        onClick={() => handleGameClick(item.id)}
-                    >
-                        <p className="text-white font-mono text-2xl px-4 text-center mb-2">{item.title}</p>
-                        <div className="flex flex-col items-center gap-2 justify-center">
-                            {item.items.map((rankItem, rankIndex) => (
-                                <div key={rankIndex} className="w-full flex gap-3 items-center group bg-bg border-1 border-border-box rounded-xl px-5 py-2 justify-between">
-                                    <div className="flex gap-3 items-center">
-                                        <p className="font-base text-white text-sm">{rankItem.rank}.</p>
-                                        {rankItem.increase &&
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            </svg>
-                                        }
+                        <div
+                            key={item.id + index}
+                            className="mt-8  z-20 break-inside-avoid h-fit border border-border-box rounded-3xl p-4 cursor-pointer hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-lg"
+                            style={{ backgroundColor: colours[index % colours.length] }}
+                            onClick={() => handleGameClick(item.id)}
+                        >
+                            {
+                                item.title &&
+                                <p className="text-white font-mono text-2xl px-4 text-center mb-2">{item.title}</p>
+                            }
+                            <p className="text-white font-mono text-lg text-center mb-2">{item.category}</p>
+                            <div className="flex flex-col items-center gap-2 justify-center">
+                                {item.items.map((rankItem, rankIndex) => (
+                                    <div key={rankIndex} className="w-full flex gap-3 items-center group bg-bg border-1 border-border-box rounded-xl px-5 py-2 justify-between">
+                                        <div className="flex gap-3 items-center">
+                                            <p className="font-base text-white text-sm">{rankItem.rank}.</p>
+                                            {rankItem.increase &&
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                            }
 
-                                        {rankItem.decrease &&
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            </svg>
-                                        }
+                                            {rankItem.decrease &&
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                            }
 
-                                        {!rankItem.increase && !rankItem.decrease &&
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
-                                                <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
-                                            </svg>
-                                        }
+                                            {!rankItem.increase && !rankItem.decrease &&
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
+                                                    <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                                                </svg>
+                                            }
+                                        </div>
+                                        <p className="font-base text-white text-lg w-full leading-none text-center pr-12 md:pr-5">{rankItem.name}</p>
                                     </div>
-                                    <p className="font-base text-white text-lg w-full leading-none text-center pr-12 md:pr-5">{rankItem.name}</p>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
+                            <p className="text-white font-mono text-sm text-center mt-2">{item.votes} votes</p>
+
+                            <button style={{ color: colours[index % colours.length] }} className="text-white relative mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-blue  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors">
+                                <p style={{ color: colours[index % colours.length] }} className="text-white font-mono md:text-xl text-lg group-hover:text-blue">Rank This!</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-white transition-all ease-in-out duration-300">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                                </svg>
+                            </button>
+
+
                         </div>
-                        <p className="text-white font-mono text-sm text-center mt-2">{item.votes} votes</p>
-
-                        <button style={{ color: colours[index % colours.length] }} className="text-white relative mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-blue  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors">
-                            <p style={{ color: colours[index % colours.length] }} className="text-white font-mono md:text-xl text-lg group-hover:text-blue">Rank This!</p>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-white transition-all ease-in-out duration-300">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                            </svg>
-                        </button>
-
-
-                    </div>
                     ))
                 )}
             </div>
@@ -382,48 +394,52 @@ function Live() {
                     </div>
                 ) : (
                     displayData?.map((item, index) => (
-                    <div
-                        key={item.id + index}
-                        className="mt-8 z-20 break-inside-avoid h-fit border border-border-box rounded-3xl p-4 cursor-pointer hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-lg"
-                        style={{ backgroundColor: colours[index % colours.length] }}
-                        onClick={() => handleGameClick(item.id)}
-                    >
-                        <p className="text-white font-mono text-2xl text-center mb-2">{item.title}</p>
-                        <div className="flex flex-col items-center gap-2 justify-center">
-                            {item.items.map((rankItem, rankIndex) => (
-                                <div key={rankIndex} className="w-full flex gap-3 items-center group bg-bg border-1 border-border-box rounded-xl px-5 py-2 justify-between">
-                                    <div className="flex gap-3 items-center">
-                                        <p className="font-base text-white text-sm">{rankItem.rank}.</p>
-                                        {rankItem.increase &&
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            </svg>
-                                        }
+                        <div
+                            key={item.id + index}
+                            className="mt-8 z-20 break-inside-avoid h-fit border border-border-box rounded-3xl p-4 cursor-pointer hover:scale-105 transition-transform duration-300 ease-in-out hover:shadow-lg"
+                            style={{ backgroundColor: colours[index % colours.length] }}
+                            onClick={() => handleGameClick(item.id)}
+                        >
+                            {
+                                item.title &&
+                                <p className="text-white font-mono text-2xl text-center mb-2">{item.title} </p>
+                            }
+                            <p className="text-white font-mono text-lg text-center mb-2">{item.category}</p>
+                            <div className="flex flex-col items-center gap-2 justify-center">
+                                {item.items.map((rankItem, rankIndex) => (
+                                    <div key={rankIndex} className="w-full flex gap-3 items-center group bg-bg border-1 border-border-box rounded-xl px-5 py-2 justify-between">
+                                        <div className="flex gap-3 items-center">
+                                            <p className="font-base text-white text-sm">{rankItem.rank}.</p>
+                                            {rankItem.increase &&
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-green group-hover:translate-x-1 rotate-180 transition-all ease-in-out duration-300">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                            }
 
-                                        {rankItem.decrease &&
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            </svg>
-                                        }
+                                            {rankItem.decrease &&
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-red transform group-hover:translate-x-1 transition-all ease-in-out duration-300">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 12.75 3 3m0 0 3-3m-3 3v-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                            }
 
-                                        {!rankItem.increase && !rankItem.decrease &&
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
-                                                <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
-                                            </svg>
-                                        }
+                                            {!rankItem.increase && !rankItem.decrease &&
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 stroke-2 stroke-purple">
+                                                    <path fillRule="evenodd" d="M3.748 8.248a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75ZM3.748 15.75a.75.75 0 0 1 .75-.751h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                                                </svg>
+                                            }
+                                        </div>
+                                        <p className="font-base text-white text-lg w-full leading-none text-center pr-4">{rankItem.name}</p>
                                     </div>
-                                    <p className="font-base text-white text-lg w-full leading-none text-center pr-4">{rankItem.name}</p>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
+                            <p className="text-white font-mono text-lg text-center mt-2">{item.votes} votes</p>
+                            <button style={{ color: colours[index % colours.length] }} className="text-white relative mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-blue  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors">
+                                <p style={{ color: colours[index % colours.length] }} className="text-white font-mono md:text-xl text-lg group-hover:text-blue">Rank This!</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-white transition-all ease-in-out duration-300">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                                </svg>
+                            </button>
                         </div>
-                        <p className="text-white font-mono text-lg text-center mt-2">{item.votes} votes</p>
-                        <button style={{ color: colours[index % colours.length] }} className="text-white relative mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-blue  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors">
-                            <p style={{ color: colours[index % colours.length] }} className="text-white font-mono md:text-xl text-lg group-hover:text-blue">Rank This!</p>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-white transition-all ease-in-out duration-300">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-                            </svg>
-                        </button>
-                    </div>
                     ))
                 )}
             </div>

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 
 interface Game {
   id: string
+  title: string
   friends: string[]
   categories: string[]
   votingMode: string
@@ -181,6 +182,8 @@ function ResultsPage() {
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-4xl mx-auto">
+
+
         <div className="flex justify-center items-center w-full gap-10">
           <p className="text-white font-mono text-2xl">Code: <span className='text-green'>{game.id}</span> </p>
           <button
@@ -194,15 +197,19 @@ function ResultsPage() {
           </button>
         </div>
 
+        <div className="flex justify-center items-center w-full">
+          <h1 className="text-white font-mono text-3xl md:text-4xl text-center">
+            {game.title}
+          </h1>
+        </div>
         <div className="flex items-center justify-center">
           <p className='text-white font-mono text-2xl'>Category: {`(${selectedCategory + 1}/${results.results.length})`}</p>
           <motion.span
-            initial="reset"            // ensures it starts “reset”
-            animate={controls}         // drives it via controls.start(...)
-            variants={variants}        // has both reset & shake
-            style={{ display: "inline-block" }}  // allow rotation
-            // remove key={category}
-            className='bg-yellow text-black text-center font-mono px-4 py-1 rounded-lg ml-3 text-2xl'
+            initial="reset"
+            animate={controls}
+            variants={variants}
+            style={{ display: "inline-block" }}
+            className='bg-yellow text-black text-center font-lond px-4 py-1 rounded-lg ml-3 text-2xl'
           >
             {currentCategoryResults.category.name}
           </motion.span>
