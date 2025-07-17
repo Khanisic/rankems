@@ -505,7 +505,7 @@ function Live() {
                                         handleGameClick(item.id)
                                     }}
                                     style={{ color: colours[mainIndex % colours.length] }}
-                                    className="text-white absolute -bottom-5 left-[50%] -translate-x-1/2 mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-yellow  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full w-fit flex gap-2 items-center cursor-pointer transition-colors"
+                                    className="text-white absolute w-[180px] -bottom-5 left-[50%] -translate-x-1/2 mx-auto mt-4 bg-bg group hover:bg-bg border-b-2 hover:border-yellow  hover:text-blue border-white md:px-6 px-4 py-1 rounded-full flex gap-2 items-center cursor-pointer transition-colors"
                                 >
                                     <p className="text-white font-mono md:text-xl text-lg group-hover:text-yellow">Rank This!</p>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 group-hover:text-yellow transition-all ease-in-out duration-300">
