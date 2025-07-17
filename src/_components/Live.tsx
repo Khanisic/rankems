@@ -339,7 +339,7 @@ function Live() {
                 <p className="text-white font-mono text-3xl z-10 md:text-6xl mt-10 mb-2 text-center">Current <span className="text-yellow">Live</span> Rankems</p>
             </div>
             <p className="text-white font-lond text-2xl text-center mb-4">Below are the live results of your rankems.</p>
-            <div className='flex-col md:flex-row flex items-center justify-center w-full gap-4 mb-10'>
+            <div className='flex-col md:flex-row flex items-center justify-center w-full gap-4 mb-5'>
                 <div className=" flex items-center justify-center w-fit gap-2 bg-bg border-b-2 border-white rounded-full px-4 py-2">
                     <input
                         type="text"
