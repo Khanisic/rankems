@@ -82,6 +82,7 @@ export async function fetchGame(id: string) {
     // Serialize the MongoDB document to a plain object
     const serializedGame = {
       id: gameExists.id,
+      title: gameExists.title,
       friends: gameExists.friends,
       categories: gameExists.categories,
       votingMode: gameExists.votingMode,
@@ -444,6 +445,7 @@ export async function fetchTopPopularGames(limit: number = 5) {
       
       return fallbackGames.map(game => ({
         id: game.id,
+        title: game.title,
         friends: game.friends,
         categories: game.categories,
         votingMode: game.votingMode,
@@ -457,6 +459,7 @@ export async function fetchTopPopularGames(limit: number = 5) {
     // Serialize the results with ranking-based ordering
     const serializedGames = gamesWithResults.map(game => ({
       id: game.id,
+      title: game.title,
       friends: game.friends,
       categories: game.categories,
       votingMode: game.votingMode,
@@ -514,6 +517,7 @@ export async function searchPublicGames(searchTerm: string) {
     // Serialize the results
     const serializedGames = matchingGames.map(game => ({
       id: game.id,
+      title: game.title,
       friends: game.friends,
       categories: game.categories,
       votingMode: game.votingMode,
@@ -524,6 +528,123 @@ export async function searchPublicGames(searchTerm: string) {
     }));
     
     return serializedGames;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    throw new Error(errorMessage);
+  }
+}
+
+// ADMIN FUNCTIONS
+
+export async function fetchAllGamesForAdmin() {
+  try {
+    await dbConnect();
+    
+    const games = await Games.find({})
+      .sort({ createdAt: -1 }) // Most recent first
+      .lean();
+    
+    // Get results for each game
+    const gamesWithResults = await Promise.all(
+      games.map(async (game) => {
+        const results = await Results.findOne({ id: game._id });
+        return {
+          id: game.id,
+          _id: game._id.toString(),
+          title: game.title,
+          friends: game.friends,
+          categories: game.categories,
+          votingMode: game.votingMode,
+          usersRanked: game.usersRanked || [],
+          votesCount: game.votesCount,
+          hasResults: !!results,
+          createdAt: game.createdAt?.toISOString(),
+          updatedAt: game.updatedAt?.toISOString(),
+        };
+      })
+    );
+    
+    return gamesWithResults;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    throw new Error(errorMessage);
+  }
+}
+
+export async function deleteGameAndResults(gameId: string) {
+  try {
+    await dbConnect();
+    
+    // Find the game first
+    const game = await Games.findOne({ id: gameId });
+    if (!game) {
+      throw new Error("Game not found");
+    }
+    
+    // Delete associated results
+    await Results.deleteOne({ id: game._id });
+    
+    // Delete the game
+    await Games.deleteOne({ id: gameId });
+    
+    return { success: true, message: "Game and results deleted successfully" };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    throw new Error(errorMessage);
+  }
+}
+
+export async function updateGameTitle(gameId: string, title: string) {
+  try {
+    await dbConnect();
+    
+    const game = await Games.findOneAndUpdate(
+      { id: gameId },
+      { title: title.trim() },
+      { new: true }
+    );
+    
+    if (!game) {
+      throw new Error("Game not found");
+    }
+    
+    return { 
+      success: true, 
+      message: "Title updated successfully",
+      game: {
+        id: game.id,
+        title: game.title,
+        friends: game.friends,
+        categories: game.categories,
+        votingMode: game.votingMode,
+        votesCount: game.votesCount,
+        createdAt: game.createdAt?.toISOString(),
+        updatedAt: game.updatedAt?.toISOString(),
+      }
+    };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    throw new Error(errorMessage);
+  }
+}
+
+export async function getGameStats() {
+  try {
+    await dbConnect();
+    
+    const totalGames = await Games.countDocuments();
+    const gamesWithVotes = await Games.countDocuments({ votesCount: { $gt: 0 } });
+    const publicGames = await Games.countDocuments({ votingMode: "public" });
+    const totalVotes = await Games.aggregate([
+      { $group: { _id: null, totalVotes: { $sum: "$votesCount" } } }
+    ]);
+    
+    return {
+      totalGames,
+      gamesWithVotes,
+      publicGames,
+      totalVotes: totalVotes[0]?.totalVotes || 0
+    };
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
     throw new Error(errorMessage);

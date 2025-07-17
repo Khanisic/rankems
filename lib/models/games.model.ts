@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true, },
+    title: { type: String, default: null }, // Optional title that can be added by admin
     friends: [{ type: String, required: true }],
     categories: [{ type: String, required: true }],
     votingMode: { type: String, required: true },
