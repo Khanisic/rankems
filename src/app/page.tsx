@@ -28,7 +28,7 @@ export default function Home() {
       <Trophies />
       <div className="md:flex hidden absolute md:left-[-200px] xl:left-[-100px] 2xl:left-[-50px] items-center justify-center top-[350px]">
         <Image src="/popular.svg" alt="ballon d'or" width={500} height={500} />
-        <p className="font-base text-white text-xl -translate-x-[210px] translate-y-[-160px] rotate-[15deg]">Most Popular right now!</p>
+        <p className="font-base text-white text-xl -translate-x-[210px] translate-y-[-160px] rotate-[15deg]">Featured right now!</p>
       </div>
 
       <div className="md:py-6 py-4 z-10">

@@ -679,6 +679,7 @@ export async function fetchAllGamesForAdmin() {
           votingMode: game.votingMode,
           usersRanked: game.usersRanked || [],
           votesCount: game.votesCount,
+          featured: game.featured || false,
           hasResults: !!results,
           createdAt: game.createdAt?.toISOString(),
           updatedAt: game.updatedAt?.toISOString(),
@@ -740,6 +741,42 @@ export async function updateGameTitle(gameId: string, title: string) {
         categories: game.categories,
         votingMode: game.votingMode,
         votesCount: game.votesCount,
+        featured: game.featured || false,
+        createdAt: game.createdAt?.toISOString(),
+        updatedAt: game.updatedAt?.toISOString(),
+      }
+    };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    throw new Error(errorMessage);
+  }
+}
+
+export async function updateGameFeatured(gameId: string, featured: boolean) {
+  try {
+    await dbConnect();
+    
+    const game = await Games.findOneAndUpdate(
+      { id: gameId },
+      { featured: featured },
+      { new: true }
+    );
+    
+    if (!game) {
+      throw new Error("Game not found");
+    }
+    
+    return { 
+      success: true, 
+      message: `Game ${featured ? 'featured' : 'unfeatured'} successfully`,
+      game: {
+        id: game.id,
+        title: game.title,
+        friends: game.friends,
+        categories: game.categories,
+        votingMode: game.votingMode,
+        votesCount: game.votesCount,
+        featured: game.featured || false,
         createdAt: game.createdAt?.toISOString(),
         updatedAt: game.updatedAt?.toISOString(),
       }
