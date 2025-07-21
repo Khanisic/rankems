@@ -1,3 +1,4 @@
+
 "use client"
 import Triangles from "@/_components/Triangles";
 import Trophies from "@/_components/Trophies";

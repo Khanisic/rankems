@@ -31,7 +31,7 @@ function Works() {
             index = index === 2 ? 0 : index + 1
             setworks(worksData[index] || { create: "", rank: "", result: "" })
             setCurrentIndex(index)
-        }, 4000)
+        }, 3210)
 
         return () => clearInterval(interval)
     }, [])

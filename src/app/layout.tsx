@@ -1,25 +1,50 @@
-import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next"
-import "./globals.css";
-import { Toaster } from "react-hot-toast";
+import type { Metadata } from 'next'
+
+import './globals.css'
+import { Toaster } from 'react-hot-toast'
+
+
 
 export const metadata: Metadata = {
-  title: "Rankems",
-  description: "Rank anything based on anything.",
-};
+  title: 'Rankems - Interactive Social Ranking Platform | Rank Anything, Anytime',
+  description: 'Create and participate in fun interactive ranking games! Rank your friends, favorite movies, foods, or anything you can imagine. Free, no signup required - join thousands of users ranking everything!',
+  keywords: 'ranking games, social voting, interactive polls, rank friends, voting platform, online rankings, social games, community voting, fun polls, rank anything',
+  authors: [{ name: 'Abdul Moid Khan' }],
+  robots: 'index, follow',
+  alternates: {
+    canonical: 'https://rankems.xyz/',
+  },
+  openGraph: {
+    type: 'website',
+    url: 'https://rankems.xyz/',
+    title: 'Rankems - Interactive Social Ranking Platform',
+    description: 'Create and participate in fun interactive ranking games! Rank your friends, favorite movies, foods, or anything you can imagine. Free, no signup required.',
+    siteName: 'Rankems',
+    locale: 'en_US',
+  },
+  twitter: {
+    creator: '@KXhakov',
+  },
+  other: {
+    'theme-color': '#09031C',
+    'application-name': 'Rankems',
+    'apple-mobile-web-app-title': 'Rankems',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+  }
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
       <body>
         {children}
         <Toaster />
-        <Analytics />
       </body>
     </html>
-  );
+  )
 }

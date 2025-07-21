@@ -5,6 +5,7 @@ import { fetchTopPopularGames, submitRankingsandResults, fetchResults } from '..
 import { hasUserVoted, getUserVote, saveUserVote } from '../../lib/util'
 import toast from 'react-hot-toast'
 
+
 interface PopularGame {
     id: string
     title: string

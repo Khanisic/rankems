@@ -342,7 +342,7 @@ function Live() {
         <div className="bg-bg h-full md:px-20 px-5">
             <div className="relative z-0 w-full flex items-center justify-center">
                 <TrianglesLive />
-                <p className="text-white font-mono text-3xl z-10 md:text-6xl mt-10 mb-2 text-center">Current <span className="text-yellow">Live</span> Rankems</p>
+                <p className="text-white font-mono text-3xl z-10 md:text-6xl mt-10 mb-2 text-center relative">Current <span className="text-yellow">Live</span> <sup className="text-white font-lond text-xl absolute -top-6 right-5">(top 8)</sup> Rankems</p>
             </div>
             <p className="text-white font-lond text-2xl text-center mb-4">Below are the live results of your rankems.</p>
             <div className='flex-col md:flex-row flex items-center justify-center w-full gap-4 mb-5'>
