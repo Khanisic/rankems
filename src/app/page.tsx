@@ -5,6 +5,7 @@ import Popular from "@/_components/Popular";
 import Live from "@/_components/Live";
 import Image from "next/image";
 import Link from "next/link";
+import Works from "@/_components/Works";
 
 
 
@@ -60,6 +61,7 @@ export default function Home() {
         <Popular />
       </div>
 
+      <Works />
       <Live />
     </div >
   );
