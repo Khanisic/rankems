@@ -171,6 +171,15 @@ function ResultsPage() {
 
   return (
     <div className="bg-bg min-h-screen flex flex-col  pb-10 px-8 md:p-2">
+      <head>
+        <title>{game.title} - Results</title>
+        <meta name="description" content={`Rankem Results for ${game.title}`} />
+        <meta name="keywords" content={`Rankem Results, Rankem ${game.title}, Rankem ${game.id}, Rankems`} />
+        <meta name="author" content="Abdul Moid Khan" />
+        <link rel="icon" href="/favicon.ico" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968967867450442"
+          crossOrigin="anonymous"></script>
+      </head>
       <div className="flex w-fit z-0 mx-auto justify-center flex-col items-center">
         <div
           onClick={() => router.push("/")}
@@ -264,7 +273,7 @@ function ResultsPage() {
             {selectedCategory + 1 < results.results.length && (
               <button
                 className="bg-purple px-5 py-2 hidden md:flex  cursor-pointer border-b-2 rounded-full hover:bg-bg hover:border-purple hover:text-purple border-white transition-colors"
-                onClick={() => {  
+                onClick={() => {
                   controls.start("shake")
                     .then(() => controls.start("reset"))
                   setSelectedCategory((cat) => Math.min(cat + 1, results.results.length - 1))

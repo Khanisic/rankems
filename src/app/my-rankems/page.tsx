@@ -224,6 +224,14 @@ function Mine() {
 
     return (
         <div className="bg-bg min-h-screen md:px-20 px-5 pb-20">
+            <head>
+                <title>My Rankems</title>
+                <meta name="description" content="My Rankems" />
+                <meta name="keywords" content="My Rankems" />
+                <meta name="author" content="Abdul Moid Khan" />
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968967867450442"
+                    crossOrigin="anonymous"></script>
+            </head>
             <div className="flex w-full justify-center flex-col items-center">
                 <div onClick={() => router.push("/")} className="bg-yellow my-2 flex items-center gap-4 border-b-4 border-white  hover:text-yellow  cursor-pointer duration-100 ease-in-out transition-all  hover:bg-transparent text-2xl text-black py-2 px-8 font-mono rounded-full mt-8">
                     <p>Home</p>

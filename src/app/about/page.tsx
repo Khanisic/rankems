@@ -51,6 +51,15 @@ function About() {
     }
     return (
         <div className="bg-bg min-h-screen pb-30">
+            <head>
+                <title>About Developer</title>
+                <meta name="description" content="About Developer" />
+                <meta name="keywords" content="About Developer" />
+                <meta name="author" content="Abdul Moid Khan" />
+                <link rel="icon" href="/favicon.ico" />
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968967867450442"
+                    crossOrigin="anonymous"></script>
+            </head>
             {/* Back to Home Button */}
             <div className="flex justify-center items-center pt-10">
                 <Link href="/" className="text-black bg-pink group hover:bg-bg border-b-4 hover:border-pink hover:text-pink border-white md:px-6 px-4 py-1 rounded-full flex gap-2 items-center cursor-pointer transition-colors">

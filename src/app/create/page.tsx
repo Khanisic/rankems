@@ -54,7 +54,15 @@ function CreateRankem() {
 
     return (
         <div className='bg-bg min-h-screen px-8 pb-20  relative'>
-
+            <head>
+                <title>Create Rankem</title>
+                <meta name="description" content="Create Rankem" />
+                <meta name="keywords" content="Create Rankem" />
+                <meta name="author" content="Abdul Moid Khan" />
+                <link rel="icon" href="/favicon.ico" />
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968967867450442"
+                    crossOrigin="anonymous"></script>
+            </head>
             <div className="flex w-full justify-center flex-col items-center">
                 <div onClick={() => router.push("/")} className="bg-yellow my-2 flex items-center gap-4 border-b-4 border-white  hover:text-yellow  cursor-pointer duration-100 ease-in-out transition-all  hover:bg-transparent text-2xl text-black py-2 px-8 font-mono rounded-full mt-8">
                     <p>Home</p>
@@ -68,7 +76,7 @@ function CreateRankem() {
 
 
                 <p className='text-white text-5xl font-mono mt-5 text-center w-full'>Create a <span className='text-pink font-mono'>Rankem</span></p>
-                
+
                 {/* Title Section */}
                 <div className="flex flex-col gap-4 mt-6 w-full max-w-md">
                     <p className="text-white font-mono text-2xl text-center">Title</p>
@@ -79,7 +87,7 @@ function CreateRankem() {
                         placeholder="Enter a title for your rankem"
                     />
                 </div>
-                
+
                 <div className="flex flex-wrap md:flex-nowrap gap-10 mt-8 justify-center">
                     <div className=" flex flex-col gap-4 justify-start">
                         <p className="text-white font-mono text-2xl ">Items</p>

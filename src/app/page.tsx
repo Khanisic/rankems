@@ -13,6 +13,15 @@ export default function Home() {
 
   return (
     <div className="bg-bg min-h-screen pb-30">
+      <head>
+        <title>Rankems</title>
+        <meta name="description" content="Rankems" />
+        <meta name="keywords" content="Rankems" />
+        <meta name="author" content="Abdul Moid Khan" />
+        <link rel="icon" href="/favicon.ico" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968967867450442"
+          crossOrigin="anonymous"></script>
+      </head>
 
       <div className="flex justify-center items-center pt-10">
         <Link href="/about" className="text-black  bg-yellow group hover:bg-bg border-b-4 hover:border-yellow  hover:text-yellow border-white md:px-6 px-4 py-1 rounded-full flex gap-2 items-center cursor-pointer transition-colors" >
