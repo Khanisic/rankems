@@ -54,8 +54,11 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
 export default function ResultsLayout({
   children,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  params,
 }: {
   children: React.ReactNode
+  params: { id: string }
 }) {
   return children
 } 
