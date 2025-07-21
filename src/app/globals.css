@@ -7,9 +7,13 @@
 @theme {
   --color-bg: #09031C;
   --color-pink: #F986D1;
+  --color-pink-light: #FFC7EC;
   --color-blue: #50A2FF;
+  --color-blue-light: #B3D7FF;
   --color-green: #00C299;
+  --color-green-light: #84BBAF;
   --color-yellow: #FFD155;
+  --color-yellow-light: #FFE6A4;
   --color-red: #E6323E;
   --color-purple: #7269E3;
   --color-box: #1D1C20;
