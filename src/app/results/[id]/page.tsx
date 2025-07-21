@@ -172,11 +172,98 @@ function ResultsPage() {
   return (
     <div className="bg-bg min-h-screen flex flex-col  pb-10 px-8 md:p-2">
       <head>
-        <title>{game.title} - Results</title>
-        <meta name="description" content={`Rankem Results for ${game.title}`} />
-        <meta name="keywords" content={`Rankem Results, Rankem ${game.title}, Rankem ${game.id}, Rankems`} />
+        <title>{game.title} - Live Results & Rankings | Rankems</title>
+        <meta name="description" content={`See live results for "${game.title}"! View current rankings based on ${results.votesCount} votes. Interactive results showing winners and trends across all categories.`} />
+        <meta name="keywords" content={`${game.title} results, ranking results, voting results, live rankings, ${game.categories.join(', ')}, game ${game.id} results, rankems leaderboard`} />
         <meta name="author" content="Abdul Moid Khan" />
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="canonical" href={`https://rankems.xyz/results/${game.id}`} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://rankems.xyz/results/${game.id}`} />
+        <meta property="og:title" content={`${game.title} - Live Results & Rankings`} />
+        <meta property="og:description" content={`See live results for "${game.title}"! View current rankings based on ${results.votesCount} votes. Interactive results showing winners and trends.`} />
+        <meta property="og:image" content="https://rankems.xyz/og-results.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="Rankems" />
+        <meta property="og:locale" content="en_US" />
+
+        {/* Twitter */}
+        {/* <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={`https://rankems.xyz/results/${game.id}`} />
+        <meta property="twitter:title" content={`${game.title} - Live Results & Rankings`} />
+        <meta property="twitter:description" content={`Check out the results for "${game.title}"! ${results.votesCount} votes counted. See who's winning!`} />
+        <meta property="twitter:image" content="https://rankems.xyz/twitter-results.jpg" /> */}
+        <meta property="twitter:creator" content="@KXhakov" />
+
+        {/* Additional SEO */}
+        <meta name="theme-color" content="#09031C" />
+        <meta name="application-name" content="Rankems" />
+
         <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": `${game.title} - Results`,
+            "description": `Live results and rankings for the interactive game "${game.title}". See current standings based on ${results.votesCount} votes.`,
+            "url": `https://rankems.xyz/results/${game.id}`,
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "Rankems",
+              "url": "https://rankems.xyz"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "Abdul Moid Khan"
+            },
+            "publisher": {
+              "@type": "Person",
+              "name": "Abdul Moid Khan"
+            },
+            "dateCreated": game.createdAt,
+            "dateModified": game.updatedAt,
+            "inLanguage": "en-US",
+            "about": {
+              "@type": "Game",
+              "name": game.title,
+              "numberOfPlayers": results.votesCount,
+              "genre": "Social Ranking Game"
+            },
+            "mainEntity": {
+              "@type": "ItemList",
+              "name": `${game.title} Rankings`,
+              "description": `Current rankings for ${game.title}`,
+              "numberOfItems": results.results.length,
+              "itemListElement": results.results.map((categoryResult, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "name": categoryResult.category.name,
+                "item": {
+                  "@type": "ItemList",
+                  "name": categoryResult.category.name,
+                  "itemListElement": categoryResult.category.results.map((result, resultIndex) => ({
+                    "@type": "ListItem",
+                    "position": resultIndex + 1,
+                    "name": result.friend,
+                    "item": {
+                      "@type": "Thing",
+                      "name": result.friend,
+                      "description": `Ranked #${resultIndex + 1} with ${result.points} points`
+                    }
+                  }))
+                }
+              }))
+            }
+          })}
+        </script>
+
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968967867450442"
           crossOrigin="anonymous"></script>
       </head>

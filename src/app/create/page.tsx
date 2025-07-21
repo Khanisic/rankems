@@ -55,11 +55,73 @@ function CreateRankem() {
     return (
         <div className='bg-bg min-h-screen px-8 pb-20  relative'>
             <head>
-                <title>Create Rankem</title>
-                <meta name="description" content="Create Rankem" />
-                <meta name="keywords" content="Create Rankem" />
+                <title>Create Your Ranking Game - Rankems | Free Interactive Polls & Voting</title>
+                <meta name="description" content="Create your own interactive ranking game for free! Set up custom categories, add items to rank, and choose voting modes. Perfect for ranking friends, movies, foods, or anything you can imagine. No signup required!" />
+                <meta name="keywords" content="create ranking game, make poll, custom voting, interactive poll creator, rank creator, voting game maker, social ranking, free poll creator, ranking app" />
                 <meta name="author" content="Abdul Moid Khan" />
+                <meta name="robots" content="index, follow" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <link rel="canonical" href="https://rankems.xyz/create" />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://rankems.xyz/create" />
+                <meta property="og:title" content="Create Your Ranking Game - Rankems" />
+                <meta property="og:description" content="Create your own interactive ranking game for free! Set up custom categories, add items to rank, and choose voting modes. Perfect for ranking friends, movies, foods, or anything you can imagine." />
+                {/* <meta property="og:image" content="https://rankems.xyz/og-create.jpg" />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" /> */}
+                <meta property="og:site_name" content="Rankems" />
+                <meta property="og:locale" content="en_US" />
+
+                {/* Twitter */}
+                <meta property="twitter:card" content="summary_large_image" />
+                <meta property="twitter:url" content="https://rankems.xyz/create" />
+                <meta property="twitter:title" content="Create Your Ranking Game - Rankems" />
+                <meta property="twitter:description" content="Create your own interactive ranking game for free! Set up custom categories, add items to rank, and choose voting modes. No signup required!" />
+                {/* <meta property="twitter:image" content="https://rankems.xyz/twitter-create.jpg" /> */}
+                <meta property="twitter:creator" content="@KXhakov" />
+
+                {/* Additional SEO */}
+                <meta name="theme-color" content="#09031C" />
+                <meta name="application-name" content="Rankems" />
+
                 <link rel="icon" href="/favicon.ico" />
+                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                
+                {/* Structured Data */}
+                <script type="application/ld+json">
+                  {JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "WebPage",
+                    "name": "Create Ranking Game - Rankems",
+                    "description": "Create your own interactive ranking game for free! Set up custom categories, add items to rank, and choose voting modes.",
+                    "url": "https://rankems.xyz/create",
+                    "isPartOf": {
+                      "@type": "WebSite",
+                      "name": "Rankems",
+                      "url": "https://rankems.xyz"
+                    },
+                    "author": {
+                      "@type": "Person",
+                      "name": "Abdul Moid Khan"
+                    },
+                    "publisher": {
+                      "@type": "Person",
+                      "name": "Abdul Moid Khan"
+                    },
+                    "inLanguage": "en-US",
+                    "potentialAction": {
+                      "@type": "CreateAction",
+                      "target": "https://rankems.xyz/create",
+                      "result": {
+                        "@type": "Game",
+                        "name": "Custom Ranking Game"
+                      }
+                    }
+                  })}
+                </script>
+
                 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968967867450442"
                     crossOrigin="anonymous"></script>
             </head>

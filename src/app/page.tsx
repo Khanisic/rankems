@@ -14,11 +14,75 @@ export default function Home() {
   return (
     <div className="bg-bg min-h-screen pb-30">
       <head>
-        <title>Rankems</title>
-        <meta name="description" content="Rankems" />
-        <meta name="keywords" content="Rankems" />
+        <title>Rankems - Interactive Social Ranking Platform | Rank Anything, Anytime</title>
+        <meta name="description" content="Create and participate in fun interactive ranking games! Rank your friends, favorite movies, foods, or anything you can imagine. Free, no signup required - join thousands of users ranking everything!" />
+        <meta name="keywords" content="ranking games, social voting, interactive polls, rank friends, voting platform, online rankings, social games, community voting, fun polls, rank anything" />
         <meta name="author" content="Abdul Moid Khan" />
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="canonical" href="https://rankems.xyz/" />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://rankems.xyz/" />
+        <meta property="og:title" content="Rankems - Interactive Social Ranking Platform" />
+        <meta property="og:description" content="Create and participate in fun interactive ranking games! Rank your friends, favorite movies, foods, or anything you can imagine. Free, no signup required." />
+        {/* <meta property="og:image" content="https://rankems.xyz/og-home.jpg" /> */}
+        {/* <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" /> */}
+        <meta property="og:site_name" content="Rankems" />
+        <meta property="og:locale" content="en_US" />
+
+        {/* Twitter */}
+        {/* <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://rankems.xyz/" />
+        <meta property="twitter:title" content="Rankems - Interactive Social Ranking Platform" />
+        <meta property="twitter:description" content="Create and participate in fun interactive ranking games! Rank your friends, favorite movies, foods, or anything you can imagine. Free, no signup required." />
+        <meta property="twitter:image" content="https://rankems.xyz/twitter-home.jpg" />
+        <meta property="twitter:creator" content="@KXhakov" /> */}
+
+        {/* Additional SEO */}
+        <meta name="theme-color" content="#09031C" />
+        <meta name="application-name" content="Rankems" />
+        <meta name="apple-mobile-web-app-title" content="Rankems" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
         <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Rankems",
+            "description": "Interactive social ranking platform where users can create and participate in ranking games for anything - friends, movies, foods, and more.",
+            "url": "https://rankems.xyz",
+            "applicationCategory": "SocialNetworkingApplication",
+            "operatingSystem": "Web Browser",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "Abdul Moid Khan",
+              "url": "https://khanisic.xyz"
+            },
+            "publisher": {
+              "@type": "Person",
+              "name": "Abdul Moid Khan"
+            },
+            "datePublished": "2024-01-01",
+            "inLanguage": "en-US",
+            "isAccessibleForFree": true,
+            "browserRequirements": "Requires JavaScript. Requires HTML5.",
+            "softwareVersion": "1.0"
+          })}
+        </script>
+
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2968967867450442"
           crossOrigin="anonymous"></script>
       </head>
