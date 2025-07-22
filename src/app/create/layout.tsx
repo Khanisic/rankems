@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: 'Rankems',
     locale: 'en_US',
     images: {
-      url: 'https://www.rankems.xyz/og.png',
+      url: 'https://rankems.xyz/og.png',
       width: 1200,
       height: 630,
     },
@@ -26,6 +26,7 @@ export const metadata: Metadata = {
     title: 'Create Your Ranking Game - Rankems',
     description: 'Create your own interactive ranking game for free! Set up custom categories, add items to rank, and choose voting modes. No signup required!',
     creator: '@KXhakov',
+    images: ['https://rankems.xyz/og.png'],
   },
   other: {
     'theme-color': '#09031C',

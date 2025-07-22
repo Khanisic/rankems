@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description: `See live results for "${game.title}"! View current rankings based on ${votesCount} votes. Interactive results showing winners and trends.`,
       images: [
         {
-          url: 'https://www.rankems.xyz/og.png',
+          url: 'https://rankems.xyz/og.png',
           width: 1200,
           height: 630,
         }
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       card: 'summary_large_image',
       title: `${game.title} - Live Results & Rankings`,
       description: `Check out the results for "${game.title}"! ${votesCount} votes counted. See who's winning!`,
-      images: ['https://www.rankems.xyz/twitter-results.jpg'],
+      images: ['https://rankems.xyz/og.png'],
       creator: '@KXhakov',
     },
     other: {

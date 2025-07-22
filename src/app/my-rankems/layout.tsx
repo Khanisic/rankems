@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: 'Rankems',
     locale: 'en_US',
     images: {
-      url: 'https://www.rankems.xyz/og.png',
+      url: 'https://rankems.xyz/og.png',
       width: 1200,
       height: 630,
     },
@@ -26,6 +26,7 @@ export const metadata: Metadata = {
     title: 'My Rankems - Your Voting History & Created Games',
     description: 'View all the ranking games you\'ve voted on or created. Track your voting history and manage your Rankems activity.',
     creator: '@KXhakov',
+    images: ['https://rankems.xyz/og.png'],
   },
   other: {
     'theme-color': '#09031C',
