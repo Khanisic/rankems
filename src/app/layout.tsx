@@ -18,6 +18,11 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://rankems.xyz/',
     title: 'Rankems - Interactive Social Ranking Platform',
+    images: {
+      url: 'https://rankems.xyz/og.png',
+      width: 1200,
+      height: 630,
+    },
     description: 'Create and participate in fun interactive ranking games! Rank your friends, favorite movies, foods, or anything you can imagine. Free, no signup required.',
     siteName: 'Rankems',
     locale: 'en_US',

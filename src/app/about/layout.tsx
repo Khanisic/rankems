@@ -16,6 +16,11 @@ export const metadata: Metadata = {
     description: 'Meet Abdul Moid Khan, the full-stack engineer and Computer Science graduate student behind Rankems. Learn about his journey building innovative web applications.',
     siteName: 'Rankems',
     locale: 'en_US',
+    images: {
+      url: 'https://rankems.xyz/og.png',
+      width: 1200,
+      height: 630,
+    },
   },
   twitter: {
     title: 'About Abdul Moid Khan - Full-Stack Developer & Rankems Creator',

@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description: `Join the interactive ranking for "${game.title}"! Drag and drop to rank items across ${game.categories.length} categories. ${game.votesCount} people have already voted.`,
       images: [
         {
-          url: 'https://rankems.xyz/og-game.jpg',
+          url: 'https://rankems.xyz/og.png',
           width: 1200,
           height: 630,
         }

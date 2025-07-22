@@ -16,6 +16,11 @@ export const metadata: Metadata = {
     description: 'View all the ranking games you\'ve voted on or created. Track your voting history, see game results, and manage your Rankems activity in one place.',
     siteName: 'Rankems',
     locale: 'en_US',
+    images: {
+      url: 'https://rankems.xyz/og.png',
+      width: 1200,
+      height: 630,
+    },
   },
   twitter: {
     title: 'My Rankems - Your Voting History & Created Games',
