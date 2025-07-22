@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
 import { fetchGame, fetchResults } from '../../../../lib/actions/rank.actions'
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const game = await fetchGame(params.id)
-  const results = await fetchResults(params.id)
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const game = await fetchGame(id)
+  const results = await fetchResults(id)
   
   if (!game) {
     return {
@@ -17,15 +18,15 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   return {
     title: `${game.title} - Live Results & Rankings | Rankems`,
     description: `See live results for "${game.title}"! View current rankings based on ${votesCount} votes. Interactive results showing winners and trends across all categories.`,
-    keywords: `${game.title} results, ranking results, voting results, live rankings, ${game.categories.join(', ')}, game ${game.id} results, rankems leaderboard`,
+    keywords: `${game.title} results, ranking results, voting results, live rankings, ${game.categories.join(', ')}, game ${id} results, rankems leaderboard`,
     authors: [{ name: 'Abdul Moid Khan' }],
     robots: 'index, follow',
     alternates: {
-      canonical: `https://rankems.xyz/results/${game.id}`,
+      canonical: `https://rankems.xyz/results/${id}`,
     },
     openGraph: {
       type: 'website',
-      url: `https://rankems.xyz/results/${game.id}`,
+      url: `https://rankems.xyz/results/${id}`,
       title: `${game.title} - Live Results & Rankings`,
       description: `See live results for "${game.title}"! View current rankings based on ${votesCount} votes. Interactive results showing winners and trends.`,
       images: [
@@ -58,7 +59,7 @@ export default function ResultsLayout({
   params,
 }: {
   children: React.ReactNode
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   return children
 } 
