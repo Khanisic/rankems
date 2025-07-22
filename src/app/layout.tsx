@@ -12,14 +12,14 @@ export const metadata: Metadata = {
   authors: [{ name: 'Abdul Moid Khan' }],
   robots: 'index, follow',
   alternates: {
-    canonical: 'https://rankems.xyz/',
+    canonical: 'https://www.rankems.xyz/',
   },
   openGraph: {
     type: 'website',
-    url: 'https://rankems.xyz/',
+    url: 'https://www.rankems.xyz/',
     title: 'Rankems - Interactive Social Ranking Platform',
     images: {
-      url: 'https://rankems.xyz/og.png',
+      url: 'https://www.www.rankems.xyz/og.png',
       width: 1200,
       height: 630,
     },

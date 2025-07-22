@@ -7,17 +7,17 @@ export const metadata: Metadata = {
   authors: [{ name: 'Abdul Moid Khan' }],
   robots: 'index, follow',
   alternates: {
-    canonical: 'https://rankems.xyz/my-rankems',
+    canonical: 'https://www.rankems.xyz/my-rankems',
   },
   openGraph: {
     type: 'website',
-    url: 'https://rankems.xyz/my-rankems',
+    url: 'https://www.rankems.xyz/my-rankems',
     title: 'My Rankems - Your Voting History & Created Games',
     description: 'View all the ranking games you\'ve voted on or created. Track your voting history, see game results, and manage your Rankems activity in one place.',
     siteName: 'Rankems',
     locale: 'en_US',
     images: {
-      url: 'https://rankems.xyz/og.png',
+      url: 'https://www.rankems.xyz/og.png',
       width: 1200,
       height: 630,
     },

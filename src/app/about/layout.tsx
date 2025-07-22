@@ -7,17 +7,17 @@ export const metadata: Metadata = {
   authors: [{ name: 'Abdul Moid Khan' }],
   robots: 'index, follow',
   alternates: {
-    canonical: 'https://rankems.xyz/about',
+    canonical: 'https://www.rankems.xyz/about',
   },
   openGraph: {
     type: 'profile',
-    url: 'https://rankems.xyz/about',
+    url: 'https://www.rankems.xyz/about',
     title: 'About Abdul Moid Khan - Full-Stack Developer & Rankems Creator',
     description: 'Meet Abdul Moid Khan, the full-stack engineer and Computer Science graduate student behind Rankems. Learn about his journey building innovative web applications.',
     siteName: 'Rankems',
     locale: 'en_US',
     images: {
-      url: 'https://rankems.xyz/og.png',
+      url: 'https://www.rankems.xyz/og.png',
       width: 1200,
       height: 630,
     },

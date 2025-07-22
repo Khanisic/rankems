@@ -7,17 +7,17 @@ export const metadata: Metadata = {
   authors: [{ name: 'Abdul Moid Khan' }],
   robots: 'index, follow',
   alternates: {
-    canonical: 'https://rankems.xyz/create',
+    canonical: 'https://www.rankems.xyz/create',
   },
   openGraph: {
     type: 'website',
-    url: 'https://rankems.xyz/create',
+    url: 'https://www.rankems.xyz/create',
     title: 'Create Your Ranking Game - Rankems',
     description: 'Create your own interactive ranking game for free! Set up custom categories, add items to rank, and choose voting modes. Perfect for ranking friends, movies, foods, or anything you can imagine.',
     siteName: 'Rankems',
     locale: 'en_US',
     images: {
-      url: 'https://rankems.xyz/og.png',
+      url: 'https://www.rankems.xyz/og.png',
       width: 1200,
       height: 630,
     },

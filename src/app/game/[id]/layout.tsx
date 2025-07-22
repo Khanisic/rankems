@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     authors: [{ name: 'Abdul Moid Khan' }],
     robots: 'index, follow',
     alternates: {
-      canonical: `https://rankems.xyz/game/${id}`,
+      canonical: `https://www.rankems.xyz/game/${id}`,
     },
     openGraph: {
       type: 'website',
-      url: `https://rankems.xyz/game/${id}`,
+      url: `https://www.rankems.xyz/game/${id}`,
       title: `${game.title} - Vote & Rank Now`,
       description: `Join the interactive ranking for "${game.title}"! Drag and drop to rank items across ${game.categories.length} categories. ${game.votesCount} people have already voted.`,
       images: [
         {
-          url: 'https://rankems.xyz/og.png',
+          url: 'https://www.rankems.xyz/og.png',
           width: 1200,
           height: 630,
         }
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       card: 'summary_large_image',
       title: `${game.title} - Vote & Rank Now`,
       description: `Join the interactive ranking for "${game.title}"! ${game.votesCount} people have already voted. Add your rankings now!`,
-      images: ['https://rankems.xyz/twitter-game.jpg'],
+      images: ['https://www.rankems.xyz/twitter-game.jpg'],
       creator: '@KXhakov',
     },
     other: {
